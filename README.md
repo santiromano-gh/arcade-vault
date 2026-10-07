@@ -14,3 +14,11 @@ https://github.com/Klerith/fernando-skills
 ```bash
 npx skills@latest add Klerith/fernando-skills
 ```
+## Comandos
+
+```bash
+npm run dev     # next dev (Turbopack) en http://localhost:3000
+npm run build   # build de producción (también valida tipos)
+npm run start   # sirve el build de producción
+npm run lint    # eslint (config flat, next core-web-vitals + typescript)
+```

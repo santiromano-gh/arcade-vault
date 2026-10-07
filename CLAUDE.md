@@ -14,16 +14,15 @@ Arcade Vault es una plataforma para jugar online y competir por la mayor cantida
 
 Por ahora el repositorio es el esqueleto recién generado por `create-next-app`; `app/page.tsx` sigue siendo la página de plantilla.
 
-## Comandos
 
-```bash
-npm run dev     # next dev (Turbopack) en http://localhost:3000
-npm run build   # build de producción (también valida tipos)
-npm run start   # sirve el build de producción
-npm run lint    # eslint (config flat, next core-web-vitals + typescript)
-```
 
 Todavía no hay un runner de tests configurado.
+
+## Skills 
+Usa siempre /fronted-design para diseñar la interfaz del usuario. 
+
+
+
 
 ## Stack y configuración
 
