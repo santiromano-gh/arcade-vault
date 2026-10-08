@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GAMES, seededScores, type ScoreRow } from "@/lib/games";
+import { GAMES, scoreSeed, seededScores, type ScoreRow } from "@/lib/games";
 import { useSession } from "@/lib/session";
 
 const TOP_CLASS = [" top1", " top2", " top3"];
@@ -22,8 +22,8 @@ export function HallOfFame() {
   const [tab, setTab] = useState(GAMES[0].id);
   const game = GAMES.find((g) => g.id === tab) ?? GAMES[0];
 
-  // Misma semilla que la plantilla: cada pestaña tiene siempre los mismos datos.
-  const rows = seededScores(tab.length * 23 + 7, 12);
+  // Semilla derivada del id: cada pestaña tiene datos propios y siempre los mismos.
+  const rows = seededScores(scoreSeed(tab, "salon"), 12);
   const [first, second, third] = rows;
 
   // Marca personal simulada, igual que en la plantilla (no lee av_scores).

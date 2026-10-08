@@ -65,6 +65,7 @@ export const GAMES: Game[];                 // 8 juegos
 export const CATS: readonly ["TODOS", ...GameCategory[]];
 export function getGame(id: string): Game | undefined;
 export function seededScores(seed: number, count?: number): ScoreRow[]; // determinista
+export function scoreSeed(id: string, context: "detalle" | "salon"): number; // hash del id completo
 ```
 
 Sesión y puntuaciones en `lib/session.ts` (solo cliente):
@@ -146,6 +147,8 @@ Antes de escribir código específico de Next (params como Promise, `generateSta
 - **Sí:** las páginas son Server Components y solo las piezas interactivas son Client Components (`"use client"`).
 - **Sí:** nombre del producto "Arcade Vault" (el prompt inicial decía "Arcade Bot"; se confirmó que es Arcade Vault).
 - **Sí:** contador de créditos fijo en `03`, solo visual.
+- **Sí:** la semilla de `seededScores` se calcula con `scoreSeed(id, contexto)`, un hash del id completo (decidido durante la implementación del paso 8). Cada juego tiene leaderboard y datos de salón propios, y siguen siendo deterministas.
+- **No:** la semilla de la plantilla basada en `id.length`. `caida` y `rocas` miden lo mismo y mostraban datos idénticos, lo que incumplía "cambiar de pestaña cambia los datos". Los nombres y puntuaciones ya no coinciden con los de la plantilla.
 
 ## Riesgos
 

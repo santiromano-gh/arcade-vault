@@ -133,6 +133,18 @@ export function getGame(id: string): Game | undefined {
   return GAMES.find((g) => g.id === id);
 }
 
+// Semilla determinista para seededScores a partir del id completo (hash FNV-1a).
+// La plantilla usaba solo la longitud del id, y juegos como "caida" y "rocas"
+// compartían leaderboard. El contexto separa los datos del detalle y del salón.
+export function scoreSeed(id: string, context: "detalle" | "salon"): number {
+  let h = 0x811c9dc5;
+  for (const ch of `${context}:${id}`) {
+    h ^= ch.codePointAt(0)!;
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0) % 233280;
+}
+
 // Generador congruencial lineal: la misma semilla produce siempre las mismas filas,
 // así servidor y cliente renderizan idéntico.
 export function seededScores(seed: number, count = 12): ScoreRow[] {

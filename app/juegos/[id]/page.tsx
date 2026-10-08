@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Leaderboard } from "@/components/leaderboard";
-import { GAMES, getGame, seededScores } from "@/lib/games";
+import { GAMES, getGame, scoreSeed, seededScores } from "@/lib/games";
 
 export function generateStaticParams() {
   return GAMES.map((g) => ({ id: g.id }));
@@ -24,8 +24,8 @@ async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">)
   const game = getGame(id);
   if (!game) notFound();
 
-  // Misma semilla que la plantilla: el leaderboard es idéntico en cada carga.
-  const scores = seededScores(id.length * 17 + 3, 10);
+  // Semilla derivada del id: el leaderboard es idéntico en cada carga.
+  const scores = seededScores(scoreSeed(id, "detalle"), 10);
 
   return (
     <div className="av-detail fade-in">
