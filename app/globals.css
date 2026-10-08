@@ -48,9 +48,12 @@
     --bronze: #d97a3a;
     --line: rgba(0, 245, 255, 0.18);
     --line-2: rgba(255, 255, 255, 0.06);
-    /* Fuentes cargadas con next/font en app/layout.tsx */
-    --pixel: var(--font-press-start-2p), system-ui, monospace;
-    --mono: var(--font-jetbrains-mono), var(--font-courier-prime), "Courier New", monospace;
+    /* Fuentes cargadas con next/font en app/layout.tsx. Se nombran por su familia, igual
+       que en references/templates/styles.css, en vez de usar var(--font-*): esas variables
+       incluyen la cara "… Fallback" (Arial con size-adjust) de next/font, que agranda los
+       glifos que estas fuentes no tienen (▲, ≡, ★, ♥…). */
+    --pixel: "Press Start 2P", system-ui, monospace;
+    --mono: "JetBrains Mono", "Courier Prime", "Courier New", monospace;
   }
 
   * { box-sizing: border-box; }
