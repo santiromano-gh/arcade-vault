@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signOut, useSession } from "@/lib/session";
 
 type Section = "biblioteca" | "salon" | "auth";
@@ -15,12 +15,25 @@ function sectionOf(pathname: string): Section | null {
   return null;
 }
 
+// Con cacheComponents, usePathname se suspende en rutas cuyo id no cubre
+// generateStaticParams (p. ej. /juegos/no-existe). El fallback es el mismo nav
+// sin enlace activo, para no bloquear el prerender del resto del layout.
 export function Nav() {
-  const pathname = usePathname();
+  return (
+    <Suspense fallback={<NavBar active={null} />}>
+      <NavWithPathname />
+    </Suspense>
+  );
+}
+
+function NavWithPathname() {
+  return <NavBar active={sectionOf(usePathname())} />;
+}
+
+function NavBar({ active }: { active: Section | null }) {
   const user = useSession();
   const [open, setOpen] = useState(false);
 
-  const active = sectionOf(pathname);
   const cls = (section: Section) => (active === section ? "active" : undefined);
   const close = () => setOpen(false);
 
