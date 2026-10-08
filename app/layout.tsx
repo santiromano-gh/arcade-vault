@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Courier_Prime, JetBrains_Mono, Press_Start_2P } from "next/font/google";
+import { Footer } from "@/components/footer";
+import { Nav } from "@/components/nav";
 import "./globals.css";
 
 // Fuentes de la plantilla (references/templates): se exponen como variables CSS
@@ -37,7 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Capas decorativas de fondo: grilla en perspectiva, scanlines y ruido */}
         <div className="av-bg" />
         <div className="av-noise" />
-        <div id="root">{children}</div>
+        <div id="root">
+          <Nav />
+          <main className="av-main">{children}</main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
