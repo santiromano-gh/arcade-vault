@@ -1,6 +1,6 @@
 # SPEC 02 — Pantalla de inicio (landing)
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-11
 > **Objetivo:** Añadir una pantalla de inicio (landing) en `/` portada de `references/templates/home-about/home.jsx`, moviendo la Biblioteca a `/biblioteca` y sin incluir nada de "Acerca de".
