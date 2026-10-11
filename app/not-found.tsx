@@ -10,7 +10,7 @@ export default function NotFound() {
       <p style={{ color: "var(--ink-dim)", margin: "24px auto 32px", maxWidth: 480 }}>
         El juego que buscas no existe o cambió de dirección. Vuelve a la biblioteca y elige otro.
       </p>
-      <Link href="/" className="btn lg">
+      <Link href="/biblioteca" className="btn lg">
         VOLVER AL VAULT
       </Link>
     </section>

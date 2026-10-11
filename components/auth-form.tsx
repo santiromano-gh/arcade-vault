@@ -17,12 +17,12 @@ export function AuthForm() {
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     signIn(user || "PLAYER1");
-    router.push("/");
+    router.push("/biblioteca");
   };
 
   const playAsGuest = () => {
     signOut();
-    router.push("/");
+    router.push("/biblioteca");
   };
 
   return (
