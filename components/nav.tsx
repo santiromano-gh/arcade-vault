@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { signOut, useSession } from "@/lib/session";
 
-type Section = "inicio" | "biblioteca" | "salon" | "auth";
+type Section = "inicio" | "biblioteca" | "salon" | "acerca" | "auth";
 
 function sectionOf(pathname: string): Section | null {
   // La Biblioteca sigue activa dentro del detalle y del reproductor de un juego.
   if (pathname === "/") return "inicio";
   if (pathname.startsWith("/biblioteca") || pathname.startsWith("/juegos/")) return "biblioteca";
   if (pathname.startsWith("/salon")) return "salon";
+  if (pathname.startsWith("/acerca-de")) return "acerca";
   if (pathname.startsWith("/auth")) return "auth";
   return null;
 }
@@ -57,6 +58,9 @@ function NavBar({ active }: { active: Section | null }) {
           <Link href="/salon" className={cls("salon")}>
             Salón de la Fama
           </Link>
+          <Link href="/acerca-de" className={cls("acerca")}>
+            Acerca de
+          </Link>
         </div>
         <div className="spacer" />
         <div className="coin-counter">
@@ -101,6 +105,9 @@ function NavBar({ active }: { active: Section | null }) {
         </Link>
         <Link href="/salon" className={cls("salon")} onClick={close}>
           Salón de la Fama
+        </Link>
+        <Link href="/acerca-de" className={cls("acerca")} onClick={close}>
+          Acerca de
         </Link>
         <Link href="/auth" className={cls("auth")} onClick={close}>
           {user ? "Cuenta" : "Iniciar Sesión"}
