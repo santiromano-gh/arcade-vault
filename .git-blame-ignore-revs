@@ -1,0 +1,5 @@
+# Commits de solo formato que git blame debe ignorar.
+# Uso local: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: normalizar formato del código
+82d57524a88bfdaa53beda6ac433f94e1c639d5f
