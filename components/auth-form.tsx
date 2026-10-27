@@ -1,11 +1,8 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useId, useState, type FormEvent } from "react";
 import { signIn, signOut } from "@/lib/session";
-
 type Tab = "in" | "up";
-
 export function AuthForm() {
   const router = useRouter();
   const id = useId();
@@ -13,18 +10,15 @@ export function AuthForm() {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
-
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     signIn(user || "PLAYER1");
     router.push("/biblioteca");
   };
-
   const playAsGuest = () => {
     signOut();
     router.push("/biblioteca");
   };
-
   return (
     <div className="auth-card">
       <div className="auth-header">
@@ -37,7 +31,6 @@ export function AuthForm() {
           ACCESO AL SISTEMA · v2.6
         </div>
       </div>
-
       <div className="auth-tabs" role="tablist">
         <button
           type="button"
@@ -58,7 +51,6 @@ export function AuthForm() {
           CREAR CUENTA
         </button>
       </div>
-
       <form onSubmit={submit}>
         <div className="field">
           <label htmlFor={`${id}-user`}>Usuario</label>
@@ -94,29 +86,36 @@ export function AuthForm() {
             autoComplete={tab === "in" ? "current-password" : "new-password"}
           />
         </div>
-
         <button className="btn lg" type="submit" style={{ width: "100%", marginTop: 8 }}>
           {tab === "in" ? "ENTRAR AL VAULT" : "CREAR Y JUGAR"}
         </button>
       </form>
-
-      <button type="button" className="btn ghost" style={{ width: "100%", marginTop: 10 }} onClick={playAsGuest}>
+      <button
+        type="button"
+        className="btn ghost"
+        style={{ width: "100%", marginTop: 10 }}
+        onClick={playAsGuest}
+      >
         JUGAR COMO INVITADO
       </button>
-
       {/* Login social decorativo: fuera del alcance de esta spec. */}
       <div className="auth-divider">O CONTINÚA CON</div>
       <div className="social">
         <button className="btn ghost" type="button">
-          ◆  GOOGLE
+          ◆ GOOGLE
         </button>
         <button className="btn ghost" type="button">
-          ▣  GITHUB
+          ▣ GITHUB
         </button>
       </div>
-
       <div
-        style={{ marginTop: 18, textAlign: "center", fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.1em" }}
+        style={{
+          marginTop: 18,
+          textAlign: "center",
+          fontSize: 11,
+          color: "var(--ink-faint)",
+          letterSpacing: "0.1em",
+        }}
       >
         AL ENTRAR ACEPTAS LOS TÉRMINOS DEL SALÓN ARCADE
       </div>

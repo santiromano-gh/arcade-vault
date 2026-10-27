@@ -1,7 +1,5 @@
 "use client";
-
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
-
 // Aparición al hacer scroll. El HTML del servidor llega visible; `.reveal` se
 // añade solo en el efecto (tras hidratar), así no hay desajuste de hidratación
 // ni contenido oculto si falla el JS. Sin IntersectionObserver o con
@@ -16,12 +14,10 @@ export function Reveal({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLElement>(null);
-
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -40,7 +36,6 @@ export function Reveal({
       el.classList.remove("reveal", "in");
     };
   }, []);
-
   return (
     <section ref={ref} className={className} style={style}>
       {children}

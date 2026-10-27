@@ -1,22 +1,18 @@
 "use client";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, type MouseEvent } from "react";
 import type { Game } from "@/lib/games";
-
 const BTN_COLOR: Record<Game["color"], string> = {
   cyan: "",
   green: "",
   magenta: " magenta",
   yellow: " yellow",
 };
-
 export function GameCard({ game }: { game: Game }) {
   const router = useRouter();
   const tiltRef = useRef<HTMLDivElement>(null);
   const href = `/juegos/${game.id}`;
-
   // Efecto tilt: inclina la tarjeta según la posición del cursor.
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
     const el = tiltRef.current;
@@ -29,7 +25,6 @@ export function GameCard({ game }: { game: Game }) {
   const onLeave = () => {
     if (tiltRef.current) tiltRef.current.style.transform = "";
   };
-
   return (
     <div
       ref={tiltRef}

@@ -1,9 +1,7 @@
 export type HighlightKind = "HEART" | "BROWSER" | "PLANT";
-
 // Iconos pixel de los highlights de "Acerca de", copiados de la plantilla.
 export function HighlightIcon({ kind }: { kind: HighlightKind }) {
   const C = "currentColor";
-
   if (kind === "HEART") {
     return (
       <svg className="hl-icon" viewBox="0 0 16 16" aria-hidden="true">
@@ -23,7 +21,6 @@ export function HighlightIcon({ kind }: { kind: HighlightKind }) {
       </svg>
     );
   }
-
   if (kind === "BROWSER") {
     return (
       <svg className="hl-icon" viewBox="0 0 16 16" aria-hidden="true">
@@ -40,7 +37,6 @@ export function HighlightIcon({ kind }: { kind: HighlightKind }) {
       </svg>
     );
   }
-
   return (
     <svg className="hl-icon" viewBox="0 0 16 16" aria-hidden="true">
       <g fill={C}>

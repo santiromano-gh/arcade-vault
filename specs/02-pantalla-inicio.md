@@ -92,13 +92,13 @@ Antes de escribir código específico de Next, leer la guía relevante en `node_
 
 ## Riesgos
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Enlaces a `/` que debían ir a la Biblioteca quedan sin actualizar | Paso 3 lista los archivos conocidos; verificar con `grep` de `href="/"` y `push("/")`. |
-| Contenido `.reveal` invisible (`opacity: 0`) si falla JS o el observer | `Reveal` muestra el contenido de inmediato sin `IntersectionObserver`; probar con JS deshabilitado. |
-| Error de hidratación por la clase añadida en cliente | La clase `.in` se añade solo en un efecto, tras hidratar. |
-| Copiar CSS en bloque arrastra reglas de about/gamepad | El paso 1 delimita los bloques; criterio de aceptación comprueba su ausencia. |
-| Solapamiento de nombres de clase con `globals.css` existente (`.top-row`, `.stat-*`, `.kicker`) | Revisar duplicados antes de pegar y consolidar si hay colisión. |
+| Riesgo                                                                                          | Mitigación                                                                                          |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Enlaces a `/` que debían ir a la Biblioteca quedan sin actualizar                               | Paso 3 lista los archivos conocidos; verificar con `grep` de `href="/"` y `push("/")`.              |
+| Contenido `.reveal` invisible (`opacity: 0`) si falla JS o el observer                          | `Reveal` muestra el contenido de inmediato sin `IntersectionObserver`; probar con JS deshabilitado. |
+| Error de hidratación por la clase añadida en cliente                                            | La clase `.in` se añade solo en un efecto, tras hidratar.                                           |
+| Copiar CSS en bloque arrastra reglas de about/gamepad                                           | El paso 1 delimita los bloques; criterio de aceptación comprueba su ausencia.                       |
+| Solapamiento de nombres de clase con `globals.css` existente (`.top-row`, `.stat-*`, `.kicker`) | Revisar duplicados antes de pegar y consolidar si hay colisión.                                     |
 
 ## Lo que **no** entra en esta spec
 

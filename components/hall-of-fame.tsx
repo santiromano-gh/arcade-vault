@@ -1,11 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import { GAMES, scoreSeed, seededScores, type ScoreRow } from "@/lib/games";
 import { useSession } from "@/lib/session";
-
 const TOP_CLASS = [" top1", " top2", " top3"];
-
 function PodiumSlot({ row, place }: { row: ScoreRow; place: "silver" | "bronze" }) {
   return (
     <div className={"podium-slot " + place}>
@@ -16,20 +13,16 @@ function PodiumSlot({ row, place }: { row: ScoreRow; place: "silver" | "bronze" 
     </div>
   );
 }
-
 export function HallOfFame() {
   const user = useSession();
   const [tab, setTab] = useState(GAMES[0].id);
   const game = GAMES.find((g) => g.id === tab) ?? GAMES[0];
-
   // Semilla derivada del id: cada pestaña tiene datos propios y siempre los mismos.
   const rows = seededScores(scoreSeed(tab, "salon"), 12);
   const [first, second, third] = rows;
-
   // Marca personal simulada, igual que en la plantilla (no lee av_scores).
   const youRank = Math.floor(8 + (tab.length % 4));
   const youScore = rows[5] ? rows[5].score - 2400 : 9999;
-
   return (
     <>
       <div className="hall-tabs">
@@ -45,11 +38,13 @@ export function HallOfFame() {
           </button>
         ))}
       </div>
-
       <div className="podium">
         <PodiumSlot row={second} place="silver" />
         <div className="podium-slot gold">
-          <div className="pixel" style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}>
+          <div
+            className="pixel"
+            style={{ fontSize: 9, color: "var(--gold)", letterSpacing: "0.18em" }}
+          >
             CAMPEÓN
           </div>
           <div className="rank-num" style={{ fontSize: 36, marginTop: 4 }}>
@@ -63,7 +58,6 @@ export function HallOfFame() {
         </div>
         <PodiumSlot row={third} place="bronze" />
       </div>
-
       <div className="hall-table">
         <div className="th">
           <div>RANGO</div>
@@ -93,7 +87,10 @@ export function HallOfFame() {
               <div className="pl" style={{ color: "var(--yellow)" }}>
                 {user.name}
               </div>
-              <div className="sc" style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}>
+              <div
+                className="sc"
+                style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
+              >
                 {(youScore || 9999).toLocaleString("es-ES")}
               </div>
               <div className="dt">11/05/2026</div>

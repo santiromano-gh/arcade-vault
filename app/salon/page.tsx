@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { HallOfFame } from "@/components/hall-of-fame";
-
 export default function SalonPage() {
   return (
     <div className="av-hall fade-in">
@@ -10,9 +9,7 @@ export default function SalonPage() {
           LOS NOMBRES QUE NUNCA SE BORRAN DE LA PANTALLA
         </p>
       </div>
-
       <HallOfFame />
-
       <div style={{ textAlign: "center", marginTop: 32 }}>
         <Link href="/biblioteca" className="btn lg">
           VOLVER A LA BIBLIOTECA

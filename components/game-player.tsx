@@ -1,24 +1,19 @@
 "use client";
-
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Game } from "@/lib/games";
 import { normalizeName, saveScore, useSession } from "@/lib/session";
-
 interface Run {
   score: number;
   level: number;
 }
-
 const NEW_RUN: Run = { score: 0, level: 1 };
-
 // Suma puntos y sube de nivel cada vez que la puntuación cruza un múltiplo de 2500,
 // con la misma regla que la plantilla.
 function advance(run: Run, points: number): Run {
   const score = run.score + points;
   return { score, level: score % 2500 < 100 ? run.level + 1 : run.level };
 }
-
 export function GamePlayer({ game }: { game: Game }) {
   const user = useSession();
   const [run, setRun] = useState<Run>(NEW_RUN);
@@ -29,7 +24,6 @@ export function GamePlayer({ game }: { game: Game }) {
   // null mientras el jugador no escriba su nombre: se muestra el de la sesión o INVITADO.
   const [typedName, setTypedName] = useState<string | null>(null);
   const name = typedName ?? user?.name ?? "INVITADO";
-
   // Puntaje simulado: Math.random solo se usa dentro del efecto, nunca en el render.
   useEffect(() => {
     if (over || paused) return;
@@ -39,7 +33,6 @@ export function GamePlayer({ game }: { game: Game }) {
     }, 220);
     return () => clearInterval(t);
   }, [over, paused]);
-
   const restart = () => {
     setRun(NEW_RUN);
     setLives(3);
@@ -47,12 +40,10 @@ export function GamePlayer({ game }: { game: Game }) {
     setOver(false);
     setSaved(false);
   };
-
   const onSave = () => {
     saveScore({ game: game.id, score: run.score, name });
     setSaved(true);
   };
-
   return (
     <div className="av-player fade-in">
       <div className="player-hud">
@@ -88,7 +79,6 @@ export function GamePlayer({ game }: { game: Game }) {
           </Link>
         </div>
       </div>
-
       <div className="crt">
         <div className="crt-screen">
           {/* Arena decorativa: el juego real llegará en otra spec. */}
@@ -107,7 +97,12 @@ export function GamePlayer({ game }: { game: Game }) {
                 </div>
                 <div
                   className="mono"
-                  style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 10, letterSpacing: "0.16em" }}
+                  style={{
+                    fontSize: 11,
+                    color: "var(--ink-dim)",
+                    marginTop: 10,
+                    letterSpacing: "0.16em",
+                  }}
                 >
                   PULSA REANUDAR PARA CONTINUAR
                 </div>
@@ -121,7 +116,6 @@ export function GamePlayer({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
-
       {over && (
         <div className="modal-bd">
           <div className="modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">

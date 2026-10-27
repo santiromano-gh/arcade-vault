@@ -43,25 +43,25 @@ export type GameCategory = "ARCADE" | "PUZZLE" | "SHOOTER" | "VERSUS";
 export type GameColor = "cyan" | "magenta" | "yellow" | "green";
 
 export interface Game {
-  id: string;          // slug usado en la URL: "bloque-buster", "caida", …
+  id: string; // slug usado en la URL: "bloque-buster", "caida", …
   title: string;
   short: string;
   long: string;
   cat: GameCategory;
-  cover: string;       // clase CSS de portada: "cover-bricks", …
+  cover: string; // clase CSS de portada: "cover-bricks", …
   color: GameColor;
   best: number;
-  plays: string;       // "12.4K"
+  plays: string; // "12.4K"
 }
 
 export interface ScoreRow {
   rank: number;
   name: string;
   score: number;
-  date: string;        // "DD/MM/2026"
+  date: string; // "DD/MM/2026"
 }
 
-export const GAMES: Game[];                 // 8 juegos
+export const GAMES: Game[]; // 8 juegos
 export const CATS: readonly ["TODOS", ...GameCategory[]];
 export function getGame(id: string): Game | undefined;
 export function seededScores(seed: number, count?: number): ScoreRow[]; // determinista
@@ -71,7 +71,9 @@ export function scoreSeed(id: string, context: "detalle" | "salon"): number; // 
 Sesión y puntuaciones en `lib/session.ts` (solo cliente):
 
 ```ts
-export interface SessionUser { name: string } // mayúsculas, máx. 10 caracteres
+export interface SessionUser {
+  name: string;
+} // mayúsculas, máx. 10 caracteres
 
 // localStorage
 // "av_user"   → SessionUser | null
@@ -152,12 +154,12 @@ Antes de escribir código específico de Next (params como Promise, `generateSta
 
 ## Riesgos
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Error de hidratación al leer localStorage en el render inicial | `useSyncExternalStore` con `getServerSnapshot` que devuelve `null`; el estado con sesión aparece tras hidratar. |
-| `seededScores` o `Math.random` difieren entre servidor y cliente | `seededScores` es determinista; `Math.random` solo se usa dentro de efectos del reproductor. |
-| Comportamiento de `params` / `generateStaticParams` distinto en Next 16.4 con `cacheComponents` | Leer `node_modules/next/dist/docs/` antes del paso 5. |
-| localStorage bloqueado (modo privado) | Accesos envueltos en `try/catch`; la app sigue funcionando sin sesión ni guardado. |
+| Riesgo                                                                                          | Mitigación                                                                                                      |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Error de hidratación al leer localStorage en el render inicial                                  | `useSyncExternalStore` con `getServerSnapshot` que devuelve `null`; el estado con sesión aparece tras hidratar. |
+| `seededScores` o `Math.random` difieren entre servidor y cliente                                | `seededScores` es determinista; `Math.random` solo se usa dentro de efectos del reproductor.                    |
+| Comportamiento de `params` / `generateStaticParams` distinto en Next 16.4 con `cacheComponents` | Leer `node_modules/next/dist/docs/` antes del paso 5.                                                           |
+| localStorage bloqueado (modo privado)                                                           | Accesos envueltos en `try/catch`; la app sigue funcionando sin sesión ni guardado.                              |
 
 ## Lo que **no** entra en esta spec
 

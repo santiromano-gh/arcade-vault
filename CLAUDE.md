@@ -14,15 +14,11 @@ Arcade Vault es una plataforma para jugar online y competir por la mayor cantida
 
 Por ahora el repositorio es el esqueleto recién generado por `create-next-app`; `app/page.tsx` sigue siendo la página de plantilla.
 
-
-
 Todavía no hay un runner de tests configurado.
 
-## Skills 
-Usa siempre /fronted-design para diseñar la interfaz del usuario. 
+## Skills
 
-
-
+Usa siempre /fronted-design para diseñar la interfaz del usuario.
 
 ## Stack y configuración
 

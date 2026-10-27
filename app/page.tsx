@@ -4,21 +4,38 @@ import { HomeSilhouettes } from "@/components/home-silhouettes";
 import { MiniCard } from "@/components/mini-card";
 import { Reveal } from "@/components/reveal";
 import { GAMES } from "@/lib/games";
-
 // Contenido mock estático copiado de references/templates/home-about/home.jsx.
 const FEATURES: { i: FeatureIconKind; t: string; d: string; c: string }[] = [
-  { i: "GAMEPAD", t: "JUEGOS CLÁSICOS", d: "Arkanoid, Tetris, Snake y muchos más. Los mejores arcades de todos los tiempos en un solo lugar.", c: "cyan" },
-  { i: "FREE", t: "100% GRATIS", d: "Sin suscripciones, sin pagos ocultos. Todos los juegos disponibles de forma gratuita.", c: "yellow" },
-  { i: "TROPHY", t: "LADDER BOARDS", d: "Compite con jugadores de todo el mundo. Escala el ranking y demuestra quién es el mejor.", c: "magenta" },
-  { i: "ROCKET", t: "SIEMPRE CRECIENDO", d: "Agregamos nuevos juegos constantemente. Vuelve seguido, siempre habrá algo nuevo que jugar.", c: "green" },
+  {
+    i: "GAMEPAD",
+    t: "JUEGOS CLÁSICOS",
+    d: "Arkanoid, Tetris, Snake y muchos más. Los mejores arcades de todos los tiempos en un solo lugar.",
+    c: "cyan",
+  },
+  {
+    i: "FREE",
+    t: "100% GRATIS",
+    d: "Sin suscripciones, sin pagos ocultos. Todos los juegos disponibles de forma gratuita.",
+    c: "yellow",
+  },
+  {
+    i: "TROPHY",
+    t: "LADDER BOARDS",
+    d: "Compite con jugadores de todo el mundo. Escala el ranking y demuestra quién es el mejor.",
+    c: "magenta",
+  },
+  {
+    i: "ROCKET",
+    t: "SIEMPRE CRECIENDO",
+    d: "Agregamos nuevos juegos constantemente. Vuelve seguido, siempre habrá algo nuevo que jugar.",
+    c: "green",
+  },
 ];
-
 const STATS = [
   { n: "12+", u: "JUEGOS", s: "Y CONTANDO" },
   { n: "MILES", u: "DE PARTIDAS", s: "JUGADAS CADA DÍA" },
   { n: "GLOBAL", u: "RANKING", s: "COMPITE CON EL MUNDO" },
 ];
-
 const RECENT = [
   { p: "NEONFOX", g: "Caída", s: 184220, t: "hace 2 min", c: "magenta" },
   { p: "PX_KAI", g: "Glotón", s: 96400, t: "hace 5 min", c: "yellow" },
@@ -28,7 +45,6 @@ const RECENT = [
   { p: "ARKADYA", g: "Serpentina", s: 7820, t: "hace 24 min", c: "green" },
   { p: "CYBER_LU", g: "Ranaria", s: 18900, t: "hace 31 min", c: "yellow" },
 ];
-
 const TOP = [
   { r: 1, p: "NEONFOX", s: 312840 },
   { r: 2, p: "PX_KAI", s: 248110 },
@@ -36,7 +52,6 @@ const TOP = [
   { r: 4, p: "VAULT_07", s: 154300 },
   { r: 5, p: "GLITCHA", s: 138900 },
 ];
-
 const PERKS = [
   "Acceso a todos los juegos",
   "Ranking global y salón de la fama",
@@ -45,13 +60,20 @@ const PERKS = [
   "Nuevos juegos cada mes",
   "Funciona en cualquier navegador",
 ];
-
 const FAQ = [
-  { q: "¿REALMENTE ES GRATIS?", a: 'Sí. Arcade Vault es un proyecto sin fines de lucro hecho por amor a los clásicos. No hay versión "premium" escondida.' },
-  { q: "¿NECESITO CREAR CUENTA?", a: "No. Puedes jugar como invitado. Si quieres guardar tu puntuación y aparecer en el ranking, regístrate en 10 segundos." },
-  { q: "¿CÓMO SOBREVIVEN SIN COBRAR?", a: "Es un proyecto comunitario. Si te gusta, compártelo. Esa es toda la moneda que aceptamos." },
+  {
+    q: "¿REALMENTE ES GRATIS?",
+    a: 'Sí. Arcade Vault es un proyecto sin fines de lucro hecho por amor a los clásicos. No hay versión "premium" escondida.',
+  },
+  {
+    q: "¿NECESITO CREAR CUENTA?",
+    a: "No. Puedes jugar como invitado. Si quieres guardar tu puntuación y aparecer en el ranking, regístrate en 10 segundos.",
+  },
+  {
+    q: "¿CÓMO SOBREVIVEN SIN COBRAR?",
+    a: "Es un proyecto comunitario. Si te gusta, compártelo. Esa es toda la moneda que aceptamos.",
+  },
 ];
-
 function SectionHead({ kicker, color, title }: { kicker: string; color: string; title: string }) {
   return (
     <div className="section-head">
@@ -61,7 +83,6 @@ function SectionHead({ kicker, color, title }: { kicker: string; color: string; 
     </div>
   );
 }
-
 export default function Home() {
   return (
     <div className="home fade-in">
@@ -95,7 +116,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <Reveal className="home-section">
         <SectionHead kicker="// 01" color="magenta" title="¿POR QUÉ ARCADE VAULT?" />
         <div className="feature-grid">
@@ -108,7 +128,6 @@ export default function Home() {
           ))}
         </div>
       </Reveal>
-
       <Reveal className="home-section">
         <SectionHead kicker="// 02" color="cyan" title="JUEGOS DISPONIBLES AHORA" />
         <div className="mini-rail">
@@ -122,7 +141,6 @@ export default function Home() {
           </Link>
         </div>
       </Reveal>
-
       <Reveal className="home-stats">
         <div className="stats-inner">
           {STATS.map((st) => (
@@ -134,7 +152,6 @@ export default function Home() {
           ))}
         </div>
       </Reveal>
-
       <Reveal className="home-section">
         <SectionHead kicker="// 03" color="yellow" title="ACTIVIDAD EN VIVO" />
         <div className="activity-grid">
@@ -153,7 +170,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-
           <div className="activity-card">
             <div className="ac-head">
               <div className="ac-title pixel neon-magenta">▸ TOP JUGADORES · HOY</div>
@@ -165,7 +181,9 @@ export default function Home() {
               {TOP.map((r, i) => (
                 <div
                   key={r.p}
-                  className={"top-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")}
+                  className={
+                    "top-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")
+                  }
                 >
                   <span className="tp-rk">#{String(r.r).padStart(2, "0")}</span>
                   <span className="tp-bar">
@@ -179,7 +197,6 @@ export default function Home() {
           </div>
         </div>
       </Reveal>
-
       <Reveal className="home-section">
         <SectionHead kicker="// 04" color="green" title="PRECIOS" />
         <div className="pricing-grid">
@@ -206,7 +223,6 @@ export default function Home() {
               PLAY
             </div>
           </div>
-
           <div className="pricing-faq">
             {FAQ.map((f) => (
               <div key={f.q} className="faq-item">
@@ -217,7 +233,6 @@ export default function Home() {
           </div>
         </div>
       </Reveal>
-
       <Reveal className="home-final">
         <h2 className="final-title pixel">¿LISTO PARA JUGAR?</h2>
         <Link href="/biblioteca" className="btn xl pulse final-cta">
