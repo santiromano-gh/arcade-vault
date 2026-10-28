@@ -1,39 +1,30 @@
 "use client";
-
 import { useState, type FormEvent } from "react";
-
 type Status = "idle" | "sending" | "success" | "error";
-
 const EMPTY_FORM = { nombre: "", correo: "", mensaje: "", sitio_web: "" };
 const SHAKE_MS = 400;
 const ERROR_RED = "No pudimos enviar tu mensaje. Inténtalo de nuevo más tarde.";
-
 export function ContactForm() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
   const [sentName, setSentName] = useState("");
-
   const update = (field: keyof typeof EMPTY_FORM) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-
   const fail = (message: string) => {
     setError(message);
     setStatus("error");
     setShake(true);
     setTimeout(() => setShake(false), SHAKE_MS);
   };
-
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (status === "sending") return;
-
     if (!form.nombre.trim() || !form.correo.trim() || !form.mensaje.trim()) {
       fail("Completa nombre, correo y mensaje para enviar.");
       return;
     }
-
     setStatus("sending");
     setError("");
     try {
@@ -53,14 +44,12 @@ export function ContactForm() {
       fail(ERROR_RED);
     }
   };
-
   const reset = () => {
     setForm(EMPTY_FORM);
     setSentName("");
     setError("");
     setStatus("idle");
   };
-
   return (
     <form className={"contact-form" + (shake ? " shake" : "")} onSubmit={onSubmit} noValidate>
       {status !== "success" ? (
@@ -111,7 +100,11 @@ export function ContactForm() {
             style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
           />
           {status === "error" && (
-            <div role="alert" className="pixel" style={{ color: "var(--magenta)", fontSize: 10, lineHeight: 1.7, marginBottom: 14 }}>
+            <div
+              role="alert"
+              className="pixel"
+              style={{ color: "var(--magenta)", fontSize: 10, lineHeight: 1.7, marginBottom: 14 }}
+            >
               {error}
             </div>
           )}

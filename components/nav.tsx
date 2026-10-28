@@ -1,12 +1,9 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { signOut, useSession } from "@/lib/session";
-
 type Section = "inicio" | "biblioteca" | "salon" | "acerca" | "auth";
-
 function sectionOf(pathname: string): Section | null {
   // La Biblioteca sigue activa dentro del detalle y del reproductor de un juego.
   if (pathname === "/") return "inicio";
@@ -16,7 +13,6 @@ function sectionOf(pathname: string): Section | null {
   if (pathname.startsWith("/auth")) return "auth";
   return null;
 }
-
 // Con cacheComponents, usePathname se suspende en rutas cuyo id no cubre
 // generateStaticParams (p. ej. /juegos/no-existe). El fallback es el mismo nav
 // sin enlace activo, para no bloquear el prerender del resto del layout.
@@ -27,18 +23,14 @@ export function Nav() {
     </Suspense>
   );
 }
-
 function NavWithPathname() {
   return <NavBar active={sectionOf(usePathname())} />;
 }
-
 function NavBar({ active }: { active: Section | null }) {
   const user = useSession();
   const [open, setOpen] = useState(false);
-
   const cls = (section: Section) => (active === section ? "active" : undefined);
   const close = () => setOpen(false);
-
   return (
     <>
       <nav className="av-nav">
@@ -87,7 +79,6 @@ function NavBar({ active }: { active: Section | null }) {
           ≡
         </button>
       </nav>
-
       <div className={"av-mobile-backdrop" + (open ? " open" : "")} onClick={close} />
       <aside
         id="av-mobile-panel"
@@ -113,7 +104,10 @@ function NavBar({ active }: { active: Section | null }) {
           {user ? "Cuenta" : "Iniciar Sesión"}
         </Link>
         <div style={{ flex: 1 }} />
-        <div className="pixel" style={{ fontSize: 9, color: "var(--ink-faint)", letterSpacing: "0.16em" }}>
+        <div
+          className="pixel"
+          style={{ fontSize: 9, color: "var(--ink-faint)", letterSpacing: "0.16em" }}
+        >
           CRÉDITOS · 03
         </div>
       </aside>

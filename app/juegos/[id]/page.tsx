@@ -3,11 +3,9 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Leaderboard } from "@/components/leaderboard";
 import { GAMES, getGame, scoreSeed, seededScores } from "@/lib/games";
-
 export function generateStaticParams() {
   return GAMES.map((g) => ({ id: g.id }));
 }
-
 // Los ids de GAMES se prerenderizan completos. Para un id desconocido, el id se resuelve
 // en tiempo de petición: el Suspense deja que nav y footer salgan del servidor y que
 // notFound() muestre la 404 en su lugar en vez de un documento de error vacío.
@@ -18,15 +16,12 @@ export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
     </Suspense>
   );
 }
-
 async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">) {
   const { id } = await params;
   const game = getGame(id);
   if (!game) notFound();
-
   // Semilla derivada del id: el leaderboard es idéntico en cada carga.
   const scores = seededScores(scoreSeed(id, "detalle"), 10);
-
   return (
     <div className="av-detail fade-in">
       <div>
@@ -49,20 +44,26 @@ async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">)
             </div>
             <div>
               <div className="l">Mejor global</div>
-              <div className="v" style={{ color: "var(--magenta)", textShadow: "0 0 6px rgba(255,0,110,0.5)" }}>
+              <div
+                className="v"
+                style={{ color: "var(--magenta)", textShadow: "0 0 6px rgba(255,0,110,0.5)" }}
+              >
                 {game.best.toLocaleString("es-ES")}
               </div>
             </div>
             <div>
               <div className="l">Dificultad</div>
-              <div className="v" style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}>
+              <div
+                className="v"
+                style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
+              >
                 ★ ★ ★ ☆ ☆
               </div>
             </div>
           </div>
           <div className="detail-actions">
             <Link href={`/juegos/${game.id}/jugar`} className="btn xl pulse">
-              ▶  JUGAR AHORA
+              ▶ JUGAR AHORA
             </Link>
             <Link href="/biblioteca" className="btn ghost lg">
               VOLVER AL VAULT
@@ -70,7 +71,6 @@ async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">)
           </div>
         </div>
       </div>
-
       <aside>
         <Leaderboard rows={scores} />
       </aside>

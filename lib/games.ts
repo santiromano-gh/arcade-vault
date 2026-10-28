@@ -1,8 +1,6 @@
 // Datos mock compartidos, portados de references/templates/data.jsx sin cambiar valores.
-
 export type GameCategory = "ARCADE" | "PUZZLE" | "SHOOTER" | "VERSUS";
 export type GameColor = "cyan" | "magenta" | "yellow" | "green";
-
 export interface Game {
   id: string; // slug usado en la URL: "bloque-buster", "caida", …
   title: string;
@@ -14,14 +12,12 @@ export interface Game {
   best: number;
   plays: string; // "12.4K"
 }
-
 export interface ScoreRow {
   rank: number;
   name: string;
   score: number;
   date: string; // "DD/MM/2026"
 }
-
 export const GAMES: Game[] = [
   {
     id: "bloque-buster",
@@ -112,27 +108,34 @@ export const GAMES: Game[] = [
     plays: "4.2K",
   },
 ];
-
-export const CATS = [
+export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const satisfies readonly [
   "TODOS",
-  "ARCADE",
-  "PUZZLE",
-  "SHOOTER",
-  "VERSUS",
-] as const satisfies readonly ["TODOS", ...GameCategory[]];
-
-export type CategoryFilter = (typeof CATS)[number];
-
-const PLAYERS = [
-  "PX_KAI", "NEONFOX", "Z3R0COOL", "M00NRYU", "VAULT_07", "GLITCHA",
-  "ATARI_KID", "CYBER_LU", "MAGENTA88", "SCANLINE", "BIT_LORD", "ARKADYA",
-  "DROID_X", "RGB_QUEEN", "PIXEL_DAD", "RETROVIRA", "VECTORX", "JOY_STK",
+  ...GameCategory[],
 ];
-
+export type CategoryFilter = (typeof CATS)[number];
+const PLAYERS = [
+  "PX_KAI",
+  "NEONFOX",
+  "Z3R0COOL",
+  "M00NRYU",
+  "VAULT_07",
+  "GLITCHA",
+  "ATARI_KID",
+  "CYBER_LU",
+  "MAGENTA88",
+  "SCANLINE",
+  "BIT_LORD",
+  "ARKADYA",
+  "DROID_X",
+  "RGB_QUEEN",
+  "PIXEL_DAD",
+  "RETROVIRA",
+  "VECTORX",
+  "JOY_STK",
+];
 export function getGame(id: string): Game | undefined {
   return GAMES.find((g) => g.id === id);
 }
-
 // Semilla determinista para seededScores a partir del id completo (hash FNV-1a).
 // La plantilla usaba solo la longitud del id, y juegos como "caida" y "rocas"
 // compartían leaderboard. El contexto separa los datos del detalle y del salón.
@@ -144,7 +147,6 @@ export function scoreSeed(id: string, context: "detalle" | "salon"): number {
   }
   return (h >>> 0) % 233280;
 }
-
 // Generador congruencial lineal: la misma semilla produce siempre las mismas filas,
 // así servidor y cliente renderizan idéntico.
 export function seededScores(seed: number, count = 12): ScoreRow[] {

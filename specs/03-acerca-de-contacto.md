@@ -114,14 +114,14 @@ Antes de escribir código específico de Next (Route Handlers, `metadata`), leer
 
 ## Riesgos
 
-| Riesgo | Mitigación |
-| --- | --- |
-| `onboarding@resend.dev` solo entrega al correo de la cuenta Resend | `CONTACT_TO_EMAIL` debe ser ese correo en desarrollo; para otros destinos verificar un dominio y cambiar `CONTACT_FROM_EMAIL`. |
-| Clave expuesta al cliente por error | Solo se lee `process.env.RESEND_API_KEY` en `app/api/contact/route.ts` (servidor); criterio de aceptación con `git grep` y revisión del bundle. |
-| Abuso del formulario por bots | Honeypot y límites de longitud; rate limit queda para otra spec. |
-| Inyección de cabeceras/HTML en el correo | Cuerpo de texto plano; asunto con el nombre sin saltos de línea (se eliminan). |
-| Falta `RESEND_API_KEY` en el entorno | El endpoint responde `500` con un mensaje genérico y registra el motivo en el servidor; `npm run build` no debe fallar por ello. |
-| Colisión de clases con `globals.css` (`.kicker`, `.field`, `.shake`) | Revisar duplicados antes de pegar y consolidar. |
+| Riesgo                                                               | Mitigación                                                                                                                                      |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `onboarding@resend.dev` solo entrega al correo de la cuenta Resend   | `CONTACT_TO_EMAIL` debe ser ese correo en desarrollo; para otros destinos verificar un dominio y cambiar `CONTACT_FROM_EMAIL`.                  |
+| Clave expuesta al cliente por error                                  | Solo se lee `process.env.RESEND_API_KEY` en `app/api/contact/route.ts` (servidor); criterio de aceptación con `git grep` y revisión del bundle. |
+| Abuso del formulario por bots                                        | Honeypot y límites de longitud; rate limit queda para otra spec.                                                                                |
+| Inyección de cabeceras/HTML en el correo                             | Cuerpo de texto plano; asunto con el nombre sin saltos de línea (se eliminan).                                                                  |
+| Falta `RESEND_API_KEY` en el entorno                                 | El endpoint responde `500` con un mensaje genérico y registra el motivo en el servidor; `npm run build` no debe fallar por ello.                |
+| Colisión de clases con `globals.css` (`.kicker`, `.field`, `.shake`) | Revisar duplicados antes de pegar y consolidar.                                                                                                 |
 
 ## Lo que **no** entra en esta spec
 
