@@ -27,3 +27,4 @@ Usa siempre /fronted-design para diseñar la interfaz del usuario.
 - **Tailwind CSS v4** se integra mediante una regla de loader de Turbopack (`@tailwindcss/turbopack` sobre `*.css`), no con PostCSS. Los tokens del tema viven en `app/globals.css` con `@import "tailwindcss"` y `@theme inline` (no hay `tailwind.config.*`).
 - Los layouts y páginas usan los helpers de tipos globales `LayoutProps<"/">` / `PageProps` que genera Next (ver `app/layout.tsx`).
 - El alias de ruta `@/*` apunta a la raíz del repositorio.
+- **Supabase** vía `@supabase/ssr`: `lib/supabase/client.ts` (navegador) y `lib/supabase/server.ts` (servidor, usa `cookies()`), tipados con `lib/supabase/database.types.ts`. Regenera los tipos con `npm run db:types` (requiere la CLI enlazada: `npx supabase login` + `npx supabase link`) cada vez que cambie el esquema.
