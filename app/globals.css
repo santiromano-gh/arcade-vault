@@ -2870,4 +2870,155 @@
       transform: rotate(360deg);
     }
   }
+  /* ===== botones deshabilitados ===== */
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+    transform: none;
+  }
+  /* ===== ranking vacío: tabla "de fábrica" esperando el primer nombre ===== */
+  .empty-scores {
+    position: relative;
+    padding: 18px 16px 22px;
+  }
+  .empty-scores .es-slots {
+    display: grid;
+    gap: 6px;
+  }
+  .empty-scores .es-slot {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px dashed var(--line-2);
+    font-family: var(--pixel);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+  .empty-scores .es-slot:first-child {
+    border-color: rgba(245, 255, 0, 0.35);
+  }
+  /* El #01 libre parpadea como un cursor de máquina recién encendida. */
+  .empty-scores .es-slot:first-child .es-rk {
+    color: var(--yellow);
+    text-shadow: 0 0 8px rgba(245, 255, 0, 0.6);
+    animation: blink 1.2s steps(1, end) infinite;
+  }
+  .empty-scores .es-sc {
+    text-align: right;
+  }
+  .empty-scores .es-msg {
+    margin-top: 18px;
+    text-align: center;
+  }
+  .empty-scores .es-title {
+    font-size: 12px;
+    color: var(--magenta);
+    text-shadow: 0 0 8px rgba(255, 0, 110, 0.5);
+    letter-spacing: 0.14em;
+    line-height: 1.6;
+  }
+  .empty-scores p {
+    max-width: 36ch;
+    margin: 10px auto 16px;
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+  .hall-table .empty-scores {
+    padding: 28px 24px 32px;
+  }
+  .hall-table .empty-scores .es-slots {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  /* ===== mejor marca propia: estado sin marca ===== */
+  .hall-table .tr .sc.you-status {
+    font-size: 9px;
+    color: var(--ink-dim);
+    text-shadow: none;
+    letter-spacing: 0.12em;
+  }
+  /* ===== modal de fin de juego: guardando y error ===== */
+  .modal .save-spinner {
+    width: 10px;
+    height: 10px;
+    background: var(--yellow);
+    box-shadow: 0 0 8px var(--yellow);
+  }
+  .modal .save-error {
+    margin: 0 0 6px;
+    font-size: 12px;
+    color: var(--magenta);
+    text-align: left;
+    line-height: 1.5;
+  }
+  /* ===== error de carga: señal perdida ===== */
+  .vault-error {
+    max-width: 720px;
+    padding-top: 88px;
+    padding-bottom: 72px;
+  }
+  .vault-error .ve-signal {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    color: var(--magenta);
+    letter-spacing: 0.24em;
+    margin-bottom: 26px;
+  }
+  .vault-error .ve-led {
+    width: 8px;
+    height: 8px;
+    background: var(--magenta);
+    box-shadow: 0 0 10px var(--magenta);
+    animation: blink 1s steps(1, end) infinite;
+  }
+  .av-hero.vault-error .ve-title {
+    font-size: clamp(20px, 4vw, 40px);
+    line-height: 1.35;
+    background: linear-gradient(180deg, #fff 0%, var(--magenta) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 12px rgba(255, 0, 110, 0.45));
+  }
+  /* Franja de estática: la señal que no llega. */
+  .vault-error .ve-static {
+    height: 18px;
+    margin: 28px auto 0;
+    max-width: 520px;
+    opacity: 0.5;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(230, 233, 255, 0.5) 0 2px,
+        transparent 2px 5px,
+        rgba(255, 0, 110, 0.6) 5px 6px,
+        transparent 6px 11px
+      ),
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, 0.7) 2px 3px);
+    animation: static-scroll 0.4s steps(4) infinite;
+  }
+  @keyframes static-scroll {
+    to {
+      background-position:
+        44px 0,
+        0 3px;
+    }
+  }
+  .vault-error .ve-copy {
+    max-width: 46ch;
+    margin: 24px auto 32px;
+    color: var(--ink-dim);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .empty-scores .es-slot:first-child .es-rk,
+    .vault-error .ve-led,
+    .vault-error .ve-static {
+      animation: none;
+    }
+  }
 }

@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { GameCard } from "@/components/game-card";
-import { CATS, GAMES, type CategoryFilter } from "@/lib/games";
-export function Library() {
+import { CATS, type CategoryFilter, type Game } from "@/lib/games-shared";
+export function Library({ games }: { games: Game[] }) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<CategoryFilter>("TODOS");
   const query = q.toLowerCase();
-  const filtered = GAMES.filter(
+  const filtered = games.filter(
     (g) => (cat === "TODOS" || g.cat === cat) && g.title.toLowerCase().includes(query),
   );
   return (

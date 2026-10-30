@@ -1,6 +1,6 @@
 # SPEC 06 — Catálogo de juegos y leaderboard en Supabase
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01, SPEC 04, SPEC 05
 > **Fecha:** 2026-10-30
 > **Objetivo:** Mover el catálogo de juegos a una tabla `games` y las puntuaciones a una tabla `scores` en Supabase, para que inicio, biblioteca, detalle, juego y Salón de la Fama lean datos reales y "GUARDAR PUNTUACIÓN" escriba en la base de datos.

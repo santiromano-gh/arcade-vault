@@ -1,16 +1,18 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { submitScore } from "@/app/juegos/[id]/jugar/actions";
 import { GameCanvas } from "@/components/game-canvas";
 import { ENGINES } from "@/lib/engines";
 import type { GameEngine, GameStats } from "@/lib/engines/types";
 import type { Game } from "@/lib/games";
-import { normalizeName, saveScore, useSession } from "@/lib/session";
+import { normalizeName, useSession } from "@/lib/session";
 interface Run {
   score: number;
   level: number;
 }
 const NEW_RUN: Run = { score: 0, level: 1 };
+type SaveState = "idle" | "saving" | "saved" | "error";
 // Suma puntos y sube de nivel cada vez que la puntuación cruza un múltiplo de 2500,
 // con la misma regla que la plantilla.
 function advance(run: Run, points: number): Run {
@@ -26,7 +28,9 @@ export function GamePlayer({ game }: { game: Game }) {
   const [lives, setLives] = useState(3);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  // Bloqueo síncrono: dos clics seguidos llegan antes de que React pinte el botón deshabilitado.
+  const savingRef = useRef(false);
   // null mientras el jugador no escriba su nombre: se muestra el de la sesión o INVITADO.
   const [typedName, setTypedName] = useState<string | null>(null);
   const name = typedName ?? user?.name ?? "INVITADO";
@@ -77,6 +81,10 @@ export function GamePlayer({ game }: { game: Game }) {
     setLives(stats.lives);
   };
   const onGameOver = (stats: GameStats) => {
+    // El teclado se bloquea aquí, en el mismo frame del fin de partida, y no en el efecto de
+    // `over`: ese efecto llega frames después y, mientras tanto, un Espacio (disparar) reiniciaba
+    // la partida en el motor y la puntuación final pasaba a 0 con el modal ya abierto.
+    engineRef.current?.setInputEnabled(false);
     syncStats(stats);
     setOver(true);
   };
@@ -85,7 +93,7 @@ export function GamePlayer({ game }: { game: Game }) {
     setLives(3);
     setPaused(false);
     setOver(false);
-    setSaved(false);
+    setSaveState("idle");
     engineRef.current?.setInputEnabled(true);
     engineRef.current?.restart();
   };
@@ -94,10 +102,21 @@ export function GamePlayer({ game }: { game: Game }) {
     if (engineRef.current) engineRef.current.end();
     else setOver(true);
   };
-  const onSave = () => {
-    saveScore({ game: game.id, score: run.score, name });
-    setSaved(true);
+  const onSave = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaveState("saving");
+    try {
+      const result = await submitScore({ gameId: game.id, name, score: run.score });
+      setSaveState(result.ok ? "saved" : "error");
+    } catch {
+      // Sin red la acción rechaza la promesa en lugar de devolver { ok: false }.
+      setSaveState("error");
+    } finally {
+      savingRef.current = false;
+    }
   };
+  const saving = saveState === "saving";
   return (
     <div className="av-player fade-in">
       <div className="player-hud">
@@ -136,7 +155,9 @@ export function GamePlayer({ game }: { game: Game }) {
       {createEngine && (
         <p className="keyboard-notice" role="note">
           <span className="keyboard-notice-tag">REQUIERE TECLADO</span>
-          <span>Conecta uno para jugar: flechas para rotar y propulsar, Espacio para disparar.</span>
+          <span>
+            Conecta uno para jugar: flechas para rotar y propulsar, Espacio para disparar.
+          </span>
         </p>
       )}
       <div className="crt">
@@ -192,23 +213,49 @@ export function GamePlayer({ game }: { game: Game }) {
             <h2 id="game-over-title">FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{run.score.toLocaleString("es-ES")}</div>
-            {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) => setTypedName(normalizeName(e.target.value))}
-                  placeholder="TUS INICIALES"
-                  aria-label="Tus iniciales"
-                />
-                <button type="button" className="btn yellow" onClick={onSave}>
-                  GUARDAR PUNTUACIÓN
-                </button>
-              </div>
+            {saveState !== "saved" ? (
+              <>
+                <div className="input-row">
+                  <input
+                    value={name}
+                    onChange={(e) => setTypedName(normalizeName(e.target.value))}
+                    placeholder="TUS INICIALES"
+                    aria-label="Tus iniciales"
+                    disabled={saving}
+                  />
+                  <button
+                    type="button"
+                    className="btn yellow"
+                    onClick={onSave}
+                    disabled={saving || name.trim() === ""}
+                    aria-busy={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="spinner save-spinner" aria-hidden="true" />
+                        GUARDANDO…
+                      </>
+                    ) : saveState === "error" ? (
+                      "REINTENTAR"
+                    ) : (
+                      "GUARDAR PUNTUACIÓN"
+                    )}
+                  </button>
+                </div>
+                {saveState === "error" && (
+                  <p className="save-error" role="alert">
+                    ▸ NO SE PUDO GUARDAR. Comprueba tu conexión y vuelve a intentarlo.
+                  </p>
+                )}
+              </>
             ) : (
-              <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+              <div className="toast-saved" role="status">
+                ▸ PUNTUACIÓN GUARDADA_
+              </div>
             )}
             <div className="actions">
-              <button type="button" className="btn" onClick={restart}>
+              {/* Reiniciar con un guardado en curso mezclaría su resultado con la partida nueva. */}
+              <button type="button" className="btn" onClick={restart} disabled={saving}>
                 JUGAR DE NUEVO
               </button>
               <Link href="/biblioteca" className="btn magenta">

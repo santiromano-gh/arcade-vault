@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Leaderboard } from "@/components/leaderboard";
-import { GAMES, getGame, scoreSeed, seededScores } from "@/lib/games";
-export function generateStaticParams() {
-  return GAMES.map((g) => ({ id: g.id }));
+import { formatPlays, getGame, getGames, getLeaderboard } from "@/lib/games";
+export async function generateStaticParams() {
+  const games = await getGames();
+  return games.map((g) => ({ id: g.id }));
 }
-// Los ids de GAMES se prerenderizan completos. Para un id desconocido, el id se resuelve
+// Los ids del catálogo se prerenderizan completos. Para un id desconocido, el id se resuelve
 // en tiempo de petición: el Suspense deja que nav y footer salgan del servidor y que
 // notFound() muestre la 404 en su lugar en vez de un documento de error vacío.
 export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
@@ -18,10 +19,9 @@ export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
 }
 async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">) {
   const { id } = await params;
-  const game = getGame(id);
+  const game = await getGame(id);
   if (!game) notFound();
-  // Semilla derivada del id: el leaderboard es idéntico en cada carga.
-  const scores = seededScores(scoreSeed(id, "detalle"), 10);
+  const scores = await getLeaderboard(id, 10);
   return (
     <div className="av-detail fade-in">
       <div>
@@ -40,7 +40,7 @@ async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">)
           <div className="stat-strip">
             <div>
               <div className="l">Partidas</div>
-              <div className="v">{game.plays}</div>
+              <div className="v">{formatPlays(game.plays)}</div>
             </div>
             <div>
               <div className="l">Mejor global</div>

@@ -1,18 +1,11 @@
 "use client";
-// Sesión mock y puntuaciones en localStorage. Solo cliente.
+// Sesión mock en localStorage. Solo cliente; las puntuaciones se guardan en Supabase.
 // Todo acceso a localStorage va en try/catch: si falla, la app se comporta como sin sesión.
 import { useSyncExternalStore } from "react";
 export interface SessionUser {
   name: string; // mayúsculas, máx. 10 caracteres
 }
-export interface SavedScore {
-  game: string;
-  score: number;
-  name: string;
-  at: number;
-}
 const USER_KEY = "av_user";
-const SCORES_KEY = "av_scores";
 const listeners = new Set<() => void>();
 function emit() {
   for (const listener of listeners) listener();
@@ -67,15 +60,6 @@ export function signOut(): void {
     localStorage.removeItem(USER_KEY);
   } catch {}
   emit();
-}
-export function saveScore(entry: Omit<SavedScore, "at">): void {
-  try {
-    const raw = localStorage.getItem(SCORES_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    const all = Array.isArray(parsed) ? parsed : [];
-    all.push({ ...entry, at: Date.now() });
-    localStorage.setItem(SCORES_KEY, JSON.stringify(all));
-  } catch {}
 }
 // En el servidor y durante la hidratación devuelve null; el estado con sesión
 // aparece tras hidratar, evitando errores de hidratación.

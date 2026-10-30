@@ -28,3 +28,9 @@ Usa siempre /fronted-design para diseñar la interfaz del usuario.
 - Los layouts y páginas usan los helpers de tipos globales `LayoutProps<"/">` / `PageProps` que genera Next (ver `app/layout.tsx`).
 - El alias de ruta `@/*` apunta a la raíz del repositorio.
 - **Supabase** vía `@supabase/ssr`: `lib/supabase/client.ts` (navegador) y `lib/supabase/server.ts` (servidor, usa `cookies()`), tipados con `lib/supabase/database.types.ts`. Regenera los tipos con `npm run db:types` (requiere la CLI enlazada: `npx supabase login` + `npx supabase link`) cada vez que cambie el esquema.
+- **Datos en Supabase** (SPEC 06), única fuente de verdad del catálogo y las puntuaciones:
+  - Tablas `games` (catálogo, ordenado por `sort_order`) y `scores` (una fila por partida guardada). Vistas `game_stats` (`best`, `plays`) y `leaderboard` (mejor marca por jugador con `rank`), ambas con `security_invoker`. RLS: `anon` solo puede leer y, en `scores`, insertar; nadie puede hacer `update` ni `delete` desde la API.
+  - El esquema se cambia con migraciones versionadas en `supabase/migrations/`: `npx supabase migration new <nombre>` y `npx supabase db push --linked`. Después, `npm run db:types`.
+  - `lib/supabase/public.ts` es un cliente sin cookies para lecturas públicas; es el único que se puede usar dentro de `"use cache"`. Las escrituras usan el cliente de servidor (Server Action `submitScore` en `app/juegos/[id]/jugar/actions.ts`).
+  - `lib/games.ts` (`getGames`, `getGame`, `getLeaderboard`) cachea con `"use cache"` y los tags `games` (catálogo) y `scores` (rankings, `best` y `plays`). Tras escribir en `scores`, invalida con `updateTag("scores")`.
+  - `npm run build` consulta Supabase (`generateStaticParams` y páginas prerenderizadas): sin conexión o con claves inválidas, el build falla.
