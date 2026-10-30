@@ -107,6 +107,17 @@ export const GAMES: Game[] = [
     best: 24,
     plays: "4.2K",
   },
+  {
+    id: "asteroides",
+    title: "ASTEROIDES",
+    short: "Rota, propulsa y parte asteroides en el vacío.",
+    long: "Pilota una nave vectorial en un campo de asteroides donde cada borde conecta con el opuesto. Rota con las flechas, propulsa con inercia y dispara con Espacio: los asteroides grandes se parten en medianos y los medianos en pequeños. Atrapa el power-up 3x para disparar en abanico durante 5 segundos. Tienes 3 vidas; vacía el campo para pasar de nivel.",
+    cat: "SHOOTER",
+    cover: "cover-asteroides",
+    color: "cyan",
+    best: 0,
+    plays: "0",
+  },
 ];
 export const CATS = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const satisfies readonly [
   "TODOS",
