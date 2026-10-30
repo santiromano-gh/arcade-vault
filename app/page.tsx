@@ -3,7 +3,7 @@ import { FeatureIcon, type FeatureIconKind } from "@/components/feature-icon";
 import { HomeSilhouettes } from "@/components/home-silhouettes";
 import { MiniCard } from "@/components/mini-card";
 import { Reveal } from "@/components/reveal";
-import { GAMES } from "@/lib/games";
+import { getGames } from "@/lib/games";
 // Contenido mock estático copiado de references/templates/home-about/home.jsx.
 const FEATURES: { i: FeatureIconKind; t: string; d: string; c: string }[] = [
   {
@@ -83,7 +83,9 @@ function SectionHead({ kicker, color, title }: { kicker: string; color: string; 
     </div>
   );
 }
-export default function Home() {
+export default async function Home() {
+  // Los 6 primeros juegos por sort_order.
+  const featured = (await getGames()).slice(0, 6);
   return (
     <div className="home fade-in">
       <section className="home-hero">
@@ -131,7 +133,7 @@ export default function Home() {
       <Reveal className="home-section">
         <SectionHead kicker="// 02" color="cyan" title="JUEGOS DISPONIBLES AHORA" />
         <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
+          {featured.map((g) => (
             <MiniCard key={g.id} game={g} />
           ))}
         </div>

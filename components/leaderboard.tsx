@@ -1,9 +1,11 @@
+import { EmptyScores } from "@/components/empty-scores";
 import type { ScoreRow } from "@/lib/games";
 const TOP_CLASS = [" top1", " top2", " top3"];
 export function Leaderboard({ rows }: { rows: ScoreRow[] }) {
   return (
     <div className="leaderboard">
       <h3>MEJORES PUNTUACIONES</h3>
+      {rows.length === 0 && <EmptyScores />}
       {rows.map((r, i) => (
         <div key={r.name} className={"lb-row" + (TOP_CLASS[i] ?? "")}>
           <div className="rk">#{String(r.rank).padStart(2, "0")}</div>
