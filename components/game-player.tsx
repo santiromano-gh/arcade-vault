@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { GameCanvas } from "@/components/game-canvas";
+import { ENGINES } from "@/lib/engines";
+import type { GameEngine, GameStats } from "@/lib/engines/types";
 import type { Game } from "@/lib/games";
 import { normalizeName, saveScore, useSession } from "@/lib/session";
 interface Run {
@@ -16,6 +19,9 @@ function advance(run: Run, points: number): Run {
 }
 export function GamePlayer({ game }: { game: Game }) {
   const user = useSession();
+  // Motor real del juego, si existe; sin motor se mantiene la arena con puntaje simulado.
+  const createEngine = ENGINES[game.id];
+  const engineRef = useRef<GameEngine | null>(null);
   const [run, setRun] = useState<Run>(NEW_RUN);
   const [lives, setLives] = useState(3);
   const [paused, setPaused] = useState(false);
@@ -26,19 +32,67 @@ export function GamePlayer({ game }: { game: Game }) {
   const name = typedName ?? user?.name ?? "INVITADO";
   // Puntaje simulado: Math.random solo se usa dentro del efecto, nunca en el render.
   useEffect(() => {
-    if (over || paused) return;
+    if (createEngine || over || paused) return;
     const t = setInterval(() => {
       const points = Math.floor(10 + Math.random() * 90);
       setRun((r) => advance(r, points));
     }, 220);
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [createEngine, over, paused]);
+  // Sincroniza el motor con el estado de React: el bucle se congela en pausa y el teclado
+  // del canvas se bloquea mientras el modal está abierto.
+  useEffect(() => {
+    if (paused) engineRef.current?.pause();
+    else engineRef.current?.resume();
+  }, [paused]);
+  useEffect(() => {
+    engineRef.current?.setInputEnabled(!over);
+  }, [over]);
+  // Tecla P y pausa automática al ocultar la pestaña, solo para juegos con motor.
+  useEffect(() => {
+    if (!createEngine) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "KeyP" || e.repeat || over) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      setPaused((p) => !p);
+    };
+    const onVisibility = () => {
+      if (document.hidden) setPaused(true);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [createEngine, over]);
+  const onEngine = (engine: GameEngine | null) => {
+    engineRef.current = engine;
+    // Un motor recién creado arranca con el estado actual de React.
+    if (engine && paused) engine.pause();
+    if (engine && over) engine.setInputEnabled(false);
+  };
+  const syncStats = (stats: GameStats) => {
+    setRun({ score: stats.score, level: stats.level });
+    setLives(stats.lives);
+  };
+  const onGameOver = (stats: GameStats) => {
+    syncStats(stats);
+    setOver(true);
+  };
   const restart = () => {
     setRun(NEW_RUN);
     setLives(3);
     setPaused(false);
     setOver(false);
     setSaved(false);
+    engineRef.current?.setInputEnabled(true);
+    engineRef.current?.restart();
+  };
+  const end = () => {
+    // Con motor, end() dispara onGameOver con la puntuación real y abre el modal.
+    if (engineRef.current) engineRef.current.end();
+    else setOver(true);
   };
   const onSave = () => {
     saveScore({ game: game.id, score: run.score, name });
@@ -71,7 +125,7 @@ export function GamePlayer({ game }: { game: Game }) {
           <button type="button" className="btn yellow" onClick={() => setPaused((p) => !p)}>
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
-          <button type="button" className="btn magenta" onClick={() => setOver(true)}>
+          <button type="button" className="btn magenta" onClick={end}>
             FIN
           </button>
           <Link href={`/juegos/${game.id}`} className="btn ghost">
@@ -79,16 +133,32 @@ export function GamePlayer({ game }: { game: Game }) {
           </Link>
         </div>
       </div>
+      {createEngine && (
+        <p className="keyboard-notice" role="note">
+          <span className="keyboard-notice-tag">REQUIERE TECLADO</span>
+          <span>Conecta uno para jugar: flechas para rotar y propulsar, Espacio para disparar.</span>
+        </p>
+      )}
       <div className="crt">
         <div className="crt-screen">
-          {/* Arena decorativa: el juego real llegará en otra spec. */}
-          <div className="game-arena">
-            <div className="grid-floor" />
-            <div className="enemy e1" />
-            <div className="enemy e2" />
-            <div className="enemy e3" />
-            <div className="player-ship" />
-          </div>
+          {createEngine ? (
+            <GameCanvas
+              createEngine={createEngine}
+              title={game.title}
+              onEngine={onEngine}
+              onStats={syncStats}
+              onGameOver={onGameOver}
+            />
+          ) : (
+            // Arena decorativa para los juegos que todavía no tienen motor.
+            <div className="game-arena">
+              <div className="grid-floor" />
+              <div className="enemy e1" />
+              <div className="enemy e2" />
+              <div className="enemy e3" />
+              <div className="player-ship" />
+            </div>
+          )}
           {paused && (
             <div className="crt-content" style={{ background: "rgba(0,0,0,0.6)", zIndex: 5 }}>
               <div>

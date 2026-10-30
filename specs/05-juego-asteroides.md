@@ -1,6 +1,6 @@
 # SPEC 05 — Juego real ASTEROIDES en la plataforma
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-30
 > **Objetivo:** Añadir el juego nuevo `asteroides` al catálogo, con el prototipo `references/02-asteroids` portado tal cual a un canvas en `/juegos/asteroides/jugar` que notifica a React los cambios de puntaje, vidas, nivel y fin de partida.
