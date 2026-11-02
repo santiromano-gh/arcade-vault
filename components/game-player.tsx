@@ -22,7 +22,10 @@ function advance(run: Run, points: number): Run {
 export function GamePlayer({ game }: { game: Game }) {
   const user = useSession();
   // Motor real del juego, si existe; sin motor se mantiene la arena con puntaje simulado.
-  const createEngine = ENGINES[game.id];
+  const entry = ENGINES[game.id];
+  const createEngine = entry?.create;
+  // Los juegos mock, sin entrada, siguen mostrando Vidas.
+  const showLives = entry?.lives ?? true;
   const engineRef = useRef<GameEngine | null>(null);
   const [run, setRun] = useState<Run>(NEW_RUN);
   const [lives, setLives] = useState(3);
@@ -131,10 +134,12 @@ export function GamePlayer({ game }: { game: Game }) {
             <div className="l">Puntuación</div>
             <div className="v">{run.score.toLocaleString("es-ES")}</div>
           </div>
-          <div className="hud-stat lives">
-            <div className="l">Vidas</div>
-            <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
-          </div>
+          {showLives && (
+            <div className="hud-stat lives">
+              <div className="l">Vidas</div>
+              <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
+            </div>
+          )}
           <div className="hud-stat level">
             <div className="l">Nivel</div>
             <div className="v">{String(run.level).padStart(2, "0")}</div>
@@ -152,12 +157,10 @@ export function GamePlayer({ game }: { game: Game }) {
           </Link>
         </div>
       </div>
-      {createEngine && (
+      {entry && (
         <p className="keyboard-notice" role="note">
           <span className="keyboard-notice-tag">REQUIERE TECLADO</span>
-          <span>
-            Conecta uno para jugar: flechas para rotar y propulsar, Espacio para disparar.
-          </span>
+          <span>Conecta uno para jugar: {entry.controls}</span>
         </p>
       )}
       <div className="crt">

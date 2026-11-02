@@ -12,9 +12,15 @@ export interface EngineCallbacks {
 export interface GameEngine {
   pause(): void;
   resume(): void;
-  restart(): void; // partida nueva: 0 puntos, 3 vidas, nivel 1
+  restart(): void; // partida nueva con el estado inicial del juego
   end(): void; // fuerza el fin de partida y dispara onGameOver
   setInputEnabled(enabled: boolean): void; // false mientras el modal de React está abierto
   destroy(): void; // cancela requestAnimationFrame y quita los listeners
 }
 export type CreateEngine = (canvas: HTMLCanvasElement, callbacks: EngineCallbacks) => GameEngine;
+// Entrada del registro: el motor y los metadatos que GamePlayer necesita para adaptar su HUD.
+export interface EngineEntry {
+  create: CreateEngine;
+  controls: string; // texto del aviso "REQUIERE TECLADO", tras "Conecta uno para jugar:"
+  lives: boolean; // false: GamePlayer oculta el indicador "Vidas"
+}
