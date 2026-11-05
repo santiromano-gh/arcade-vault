@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { submitScore } from "@/app/juegos/[id]/jugar/actions";
 import { GameCanvas } from "@/components/game-canvas";
 import { ENGINES } from "@/lib/engines";
-import type { GameEngine, GameStats } from "@/lib/engines/types";
+import type { CreateEngine, EngineEntry, GameEngine, GameStats } from "@/lib/engines/types";
 import type { Game } from "@/lib/games";
 import { normalizeName, useSession } from "@/lib/session";
 interface Run {
@@ -19,11 +19,32 @@ function advance(run: Run, points: number): Run {
   const score = run.score + points;
   return { score, level: score % 2500 < 100 ? run.level + 1 : run.level };
 }
+type EngineLoad =
+  | { status: "loading" }
+  | { status: "ready"; create: CreateEngine }
+  | { status: "failed" };
+// Descarga el motor bajo demanda (import() dinámico del registro). El reproductor se monta
+// con key={game.id}, así que `entry` no cambia durante la vida del componente.
+function useEngine(entry: EngineEntry | undefined): EngineLoad {
+  const [load, setLoad] = useState<EngineLoad>({ status: "loading" });
+  useEffect(() => {
+    if (!entry) return;
+    let cancelled = false;
+    entry.load().then(
+      (create) => !cancelled && setLoad({ status: "ready", create }),
+      () => !cancelled && setLoad({ status: "failed" }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [entry]);
+  return load;
+}
 export function GamePlayer({ game }: { game: Game }) {
   const user = useSession();
   // Motor real del juego, si existe; sin motor se mantiene la arena con puntaje simulado.
   const entry = ENGINES[game.id];
-  const createEngine = entry?.create;
+  const engineLoad = useEngine(entry);
   // Los juegos mock, sin entrada, siguen mostrando Vidas.
   const showLives = entry?.lives ?? true;
   const engineRef = useRef<GameEngine | null>(null);
@@ -39,13 +60,13 @@ export function GamePlayer({ game }: { game: Game }) {
   const name = typedName ?? user?.name ?? "INVITADO";
   // Puntaje simulado: Math.random solo se usa dentro del efecto, nunca en el render.
   useEffect(() => {
-    if (createEngine || over || paused) return;
+    if (entry || over || paused) return;
     const t = setInterval(() => {
       const points = Math.floor(10 + Math.random() * 90);
       setRun((r) => advance(r, points));
     }, 220);
     return () => clearInterval(t);
-  }, [createEngine, over, paused]);
+  }, [entry, over, paused]);
   // Sincroniza el motor con el estado de React: el bucle se congela en pausa y el teclado
   // del canvas se bloquea mientras el modal está abierto.
   useEffect(() => {
@@ -57,7 +78,7 @@ export function GamePlayer({ game }: { game: Game }) {
   }, [over]);
   // Tecla P y pausa automática al ocultar la pestaña, solo para juegos con motor.
   useEffect(() => {
-    if (!createEngine) return;
+    if (!entry) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "KeyP" || e.repeat || over) return;
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -72,7 +93,7 @@ export function GamePlayer({ game }: { game: Game }) {
       window.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [createEngine, over]);
+  }, [entry, over]);
   const onEngine = (engine: GameEngine | null) => {
     engineRef.current = engine;
     // Un motor recién creado arranca con el estado actual de React.
@@ -165,14 +186,24 @@ export function GamePlayer({ game }: { game: Game }) {
       )}
       <div className="crt">
         <div className="crt-screen">
-          {createEngine ? (
-            <GameCanvas
-              createEngine={createEngine}
-              title={game.title}
-              onEngine={onEngine}
-              onStats={syncStats}
-              onGameOver={onGameOver}
-            />
+          {entry ? (
+            engineLoad.status === "ready" ? (
+              <GameCanvas
+                createEngine={engineLoad.create}
+                title={game.title}
+                onEngine={onEngine}
+                onStats={syncStats}
+                onGameOver={onGameOver}
+              />
+            ) : (
+              <div className="crt-content" role="status">
+                <div className="pixel neon-cyan" style={{ fontSize: 14 }}>
+                  {engineLoad.status === "loading"
+                    ? "CARGANDO…"
+                    : "NO SE PUDO CARGAR EL JUEGO. RECARGA LA PÁGINA."}
+                </div>
+              </div>
+            )
           ) : (
             // Arena decorativa para los juegos que todavía no tienen motor.
             <div className="game-arena">

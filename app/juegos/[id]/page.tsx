@@ -19,9 +19,9 @@ export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
 }
 async function GameDetail({ params }: Pick<PageProps<"/juegos/[id]">, "params">) {
   const { id } = await params;
-  const game = await getGame(id);
+  // En paralelo: el ranking no depende del juego, solo del id de la URL.
+  const [game, scores] = await Promise.all([getGame(id), getLeaderboard(id, 10)]);
   if (!game) notFound();
-  const scores = await getLeaderboard(id, 10);
   return (
     <div className="av-detail fade-in">
       <div>
