@@ -42,7 +42,7 @@ Antes de escribir una spec nueva, lee las dos más recientes para seguir sus con
 - La plataforma ya resuelve, y el motor no debe duplicar: `components/game-canvas.tsx` (buffer con `devicePixelRatio`, ciclo de vida compatible con Strict Mode) y `components/game-player.tsx` (HUD, pausa con P, `visibilitychange`, FIN, SALIR, modal y guardado con `submitScore`).
 - El motor nunca habla con Supabase: solo notifica a React con `onStats` / `onGameOver`.
 - Resolución lógica 800×600 (4:3). Las reglas de integración, las trampas de portado y los límites de la plataforma están en `.claude/skills/nuevo-juego/integracion.md`.
-- `references/` contiene prototipos (`02-asteroids`, `03-tetris`, `04-arkanoid`) y el mock de diseño (`templates/`). No es código de la app: ESLint lo ignora; ignora también `__MACOSX/`.
+- `references/` contiene prototipos (`02-asteroids`, `03-tetris`, `04-arkanoid`), el mock de diseño (`templates/`) y el To Do de sugerencias de juegos (`game-suggestions-todo.md`, lo mantiene el agente `game-planner`). No es código de la app: ESLint lo ignora; ignora también `__MACOSX/`.
 
 ### Sesión
 
@@ -53,6 +53,17 @@ Antes de escribir una spec nueva, lee las dos más recientes para seguir sus con
 - Usa siempre `/frontend-design` para diseñar la interfaz del usuario, respetando el lenguaje visual CRT existente (`app/globals.css`).
 - `/spec` y `/spec-impl` (globales, de fernando-skills): especificar e implementar funcionalidades.
 - `/nuevo-juego <nombre o carpeta de references>` (del proyecto, `.claude/skills/nuevo-juego/`): entrevista al usuario y escribe la spec de un juego nuevo en estado `Borrador`, con motor, migración de catálogo y leaderboard. No escribe código; después se aprueba y se ejecuta `/spec-impl NN-juego-<id>`. Solo se invoca manualmente.
+
+## Agentes
+
+Viven en `.claude/agents/`.
+
+- **`game-planner`** (`.claude/agents/game-planner.md`): planifica y decide qué juego encaja con la plataforma. Es el paso previo a `/nuevo-juego`: **`game-planner` → `/nuevo-juego <id>` → aprobar la spec → `/spec-impl NN-juego-<id>`**.
+  - Propone 2 o 3 candidatos, recomienda uno y lo compara con una tabla de criterios. Los prioritarios son diversidad de categorías (evita las ya cubiertas y prioriza géneros que faltan, como RACING, RPG o FIGHTING), factibilidad en Canvas 2D con el stack actual y reconocimiento clásico (mecánicas arcade icónicas, siempre con nombre, estética y giro de diseño propios, sin copiar juegos existentes).
+  - Memoria persistente (`memory: project`) en `.claude/agent-memory/game-planner/`, versionada en git: guarda preferencias y motivos de aceptación o rechazo.
+  - Registra sus sugerencias en el To Do `references/game-suggestions-todo.md` (pendiente, en spec, implementado, descartado) y nunca borra entradas, para no repetir sugerencias.
+  - Solo lee el repositorio (sin web ni Supabase) y solo modifica el To Do y su memoria: no escribe specs, código ni migraciones.
+  - Se invoca pidiéndolo, por ejemplo: "usa game-planner para sugerir el próximo juego".
 
 ## Herramientas de Claude Code
 
