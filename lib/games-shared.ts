@@ -4,12 +4,12 @@ import type { Database } from "@/lib/supabase/database.types";
 export type GameCategory = Database["public"]["Enums"]["game_category"];
 export type GameColor = Database["public"]["Enums"]["game_color"];
 export interface Game {
-  id: string; // slug usado en la URL: "bloque-buster", "caida", …
+  id: string; // slug usado en la URL: "asteroides", "tetris"
   title: string;
   short: string;
   long: string;
   cat: GameCategory;
-  cover: string; // clase CSS de portada: "cover-bricks", …
+  cover: string; // clase CSS de portada: "cover-asteroides", "cover-tetris"
   color: GameColor;
   best: number; // game_stats.best
   plays: number; // game_stats.plays; se formatea con formatPlays al mostrarlo
