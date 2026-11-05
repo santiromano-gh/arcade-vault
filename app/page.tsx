@@ -9,7 +9,7 @@ const FEATURES: { i: FeatureIconKind; t: string; d: string; c: string }[] = [
   {
     i: "GAMEPAD",
     t: "JUEGOS CLÁSICOS",
-    d: "Arkanoid, Tetris, Snake y muchos más. Los mejores arcades de todos los tiempos en un solo lugar.",
+    d: "Asteroides y Tetris ya están listos para jugar, y vienen más clásicos en camino. Los mejores arcades en un solo lugar.",
     c: "cyan",
   },
   {
@@ -32,18 +32,19 @@ const FEATURES: { i: FeatureIconKind; t: string; d: string; c: string }[] = [
   },
 ];
 const STATS = [
-  { n: "12+", u: "JUEGOS", s: "Y CONTANDO" },
+  { n: "2", u: "JUEGOS", s: "Y CONTANDO" },
   { n: "MILES", u: "DE PARTIDAS", s: "JUGADAS CADA DÍA" },
   { n: "GLOBAL", u: "RANKING", s: "COMPITE CON EL MUNDO" },
 ];
+// Solo menciona juegos con motor jugable (asteroides y tetris).
 const RECENT = [
-  { p: "NEONFOX", g: "Caída", s: 184220, t: "hace 2 min", c: "magenta" },
-  { p: "PX_KAI", g: "Glotón", s: 96400, t: "hace 5 min", c: "yellow" },
-  { p: "Z3R0COOL", g: "Invasores", s: 54190, t: "hace 8 min", c: "green" },
-  { p: "VAULT_07", g: "Rocas", s: 41200, t: "hace 12 min", c: "cyan" },
-  { p: "GLITCHA", g: "Bloque Buster", s: 28450, t: "hace 18 min", c: "cyan" },
-  { p: "ARKADYA", g: "Serpentina", s: 7820, t: "hace 24 min", c: "green" },
-  { p: "CYBER_LU", g: "Ranaria", s: 18900, t: "hace 31 min", c: "yellow" },
+  { p: "NEONFOX", g: "Tetris", s: 184220, t: "hace 2 min", c: "magenta" },
+  { p: "PX_KAI", g: "Asteroides", s: 96400, t: "hace 5 min", c: "yellow" },
+  { p: "Z3R0COOL", g: "Tetris", s: 54190, t: "hace 8 min", c: "green" },
+  { p: "VAULT_07", g: "Asteroides", s: 41200, t: "hace 12 min", c: "cyan" },
+  { p: "GLITCHA", g: "Tetris", s: 28450, t: "hace 18 min", c: "cyan" },
+  { p: "ARKADYA", g: "Asteroides", s: 7820, t: "hace 24 min", c: "green" },
+  { p: "CYBER_LU", g: "Tetris", s: 18900, t: "hace 31 min", c: "yellow" },
 ];
 const TOP = [
   { r: 1, p: "NEONFOX", s: 312840 },
@@ -84,7 +85,7 @@ function SectionHead({ kicker, color, title }: { kicker: string; color: string; 
   );
 }
 export default async function Home() {
-  // Los 6 primeros juegos por sort_order.
+  // Hasta 6 juegos destacados, por sort_order.
   const featured = (await getGames()).slice(0, 6);
   return (
     <div className="home fade-in">
