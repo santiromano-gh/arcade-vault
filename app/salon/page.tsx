@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { HallOfFame } from "@/components/hall-of-fame";
-import { getGames, getLeaderboard, type ScoreRow } from "@/lib/games";
+import { getGames, getLeaderboards } from "@/lib/games";
 const HALL_SIZE = 12;
 export default async function SalonPage() {
   const games = await getGames();
-  const boards = await Promise.all(games.map((g) => getLeaderboard(g.id, HALL_SIZE)));
-  const rankings: Record<string, ScoreRow[]> = Object.fromEntries(
-    games.map((g, i) => [g.id, boards[i]]),
+  const rankings = await getLeaderboards(
+    games.map((g) => g.id),
+    HALL_SIZE,
   );
   return (
     <div className="av-hall fade-in">

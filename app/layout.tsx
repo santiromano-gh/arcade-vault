@@ -15,10 +15,13 @@ const jetBrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700"],
   subsets: ["latin"],
 });
+// Courier Prime solo es respaldo de JetBrains Mono en --mono: sin preload, el navegador
+// la descarga únicamente si una página necesita un glifo que JetBrains Mono no tiene.
 const courierPrime = Courier_Prime({
   variable: "--font-courier-prime",
   weight: ["400", "700"],
   subsets: ["latin"],
+  preload: false,
 });
 export const metadata: Metadata = {
   title: "Arcade Vault · Portal Retro",

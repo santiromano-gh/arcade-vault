@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { EmptyScores } from "@/components/empty-scores";
 import { LEADERBOARD_COLUMNS, toScoreRow, type Game, type ScoreRow } from "@/lib/games-shared";
 import { useSession } from "@/lib/session";
-import { createClient } from "@/lib/supabase/client";
 const TOP_CLASS = [" top1", " top2", " top3"];
 const YOU_COLOR = { color: "var(--yellow)" };
 function PodiumSlot({ row, place }: { row: ScoreRow | undefined; place: "silver" | "bronze" }) {
@@ -28,16 +27,27 @@ function PersonalBest({ game, name, delay }: { game: Game; name: string; delay: 
   const [lookup, setLookup] = useState<Lookup | null>(null);
   useEffect(() => {
     let cancelled = false;
-    createClient()
-      .from("leaderboard")
-      .select(LEADERBOARD_COLUMNS)
-      .eq("game_id", game.id)
-      .eq("player_name", name)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        setLookup({ key, row: data ? toScoreRow(data) : null, failed: Boolean(error) });
-      });
+    // supabase-js pesa ~70 KB comprimido: se importa solo cuando hay sesión y hace falta
+    // la consulta, en vez de añadirlo al bundle de la página (y al prefetch de sus enlaces).
+    import("@/lib/supabase/client")
+      .then(({ createClient }) =>
+        createClient()
+          .from("leaderboard")
+          .select(LEADERBOARD_COLUMNS)
+          .eq("game_id", game.id)
+          .eq("player_name", name)
+          .maybeSingle(),
+      )
+      .then(
+        ({ data, error }) => {
+          if (cancelled) return;
+          setLookup({ key, row: data ? toScoreRow(data) : null, failed: Boolean(error) });
+        },
+        () => {
+          // Sin red el chunk no se descarga: se trata igual que un error de la consulta.
+          if (!cancelled) setLookup({ key, row: null, failed: true });
+        },
+      );
     return () => {
       cancelled = true;
     };

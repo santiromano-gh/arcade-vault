@@ -20,7 +20,7 @@ export interface GameEngine {
 export type CreateEngine = (canvas: HTMLCanvasElement, callbacks: EngineCallbacks) => GameEngine;
 // Entrada del registro: el motor y los metadatos que GamePlayer necesita para adaptar su HUD.
 export interface EngineEntry {
-  create: CreateEngine;
+  load(): Promise<CreateEngine>; // import() dinámico del motor: se descarga bajo demanda
   controls: string; // texto del aviso "REQUIERE TECLADO", tras "Conecta uno para jugar:"
   lives: boolean; // false: GamePlayer oculta el indicador "Vidas"
 }

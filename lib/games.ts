@@ -40,18 +40,11 @@ export async function getGames(): Promise<Game[]> {
   const statsById = new Map(stats.data.map((s) => [s.game_id, s]));
   return games.data.map((g) => toGame(g, statsById.get(g.id)));
 }
-// Un juego por su id, o null si no existe.
+// Un juego por su id, o null si no existe. Se resuelve sobre el catálogo cacheado de getGames:
+// el catálogo es corto y así todas las páginas comparten una única entrada de caché
+// en lugar de lanzar dos consultas más (juego y estadísticas) por cada id.
 export async function getGame(id: string): Promise<Game | null> {
-  "use cache";
-  cacheTag("games", "scores");
-  const supabase = createPublicClient();
-  const [game, stats] = await Promise.all([
-    supabase.from("games").select(GAME_COLUMNS).eq("id", id).maybeSingle(),
-    supabase.from("game_stats").select("game_id, best, plays").eq("game_id", id).maybeSingle(),
-  ]);
-  if (game.error) fail("el juego", game.error.message);
-  if (stats.error) fail("las estadísticas", stats.error.message);
-  return game.data ? toGame(game.data, stats.data ?? undefined) : null;
+  return (await getGames()).find((g) => g.id === id) ?? null;
 }
 // Ranking de un juego: una fila por jugador con su mejor marca, ordenado por `rank`.
 export async function getLeaderboard(gameId: string, limit: number): Promise<ScoreRow[]> {
@@ -66,4 +59,27 @@ export async function getLeaderboard(gameId: string, limit: number): Promise<Sco
     .limit(limit);
   if (error) fail("el ranking", error.message);
   return data.map(toScoreRow);
+}
+// Rankings de varios juegos en una sola consulta (evita una petición por juego, N+1).
+// Devuelve un ranking por id, vacío para los juegos sin puntuaciones.
+export async function getLeaderboards(
+  gameIds: string[],
+  limit: number,
+): Promise<Record<string, ScoreRow[]>> {
+  "use cache";
+  cacheTag("scores");
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("leaderboard")
+    .select(`game_id, ${LEADERBOARD_COLUMNS}`)
+    .in("game_id", gameIds)
+    .lte("rank", limit)
+    .order("game_id")
+    .order("rank");
+  if (error) fail("los rankings", error.message);
+  const boards: Record<string, ScoreRow[]> = Object.fromEntries(gameIds.map((id) => [id, []]));
+  for (const row of data) {
+    if (row.game_id) boards[row.game_id]?.push(toScoreRow(row));
+  }
+  return boards;
 }

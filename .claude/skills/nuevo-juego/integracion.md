@@ -5,7 +5,7 @@ Referencia del estado de la plataforma. Si algo difiere del código, manda el c�
 ## Contrato
 
 - `lib/engines/types.ts`: `CreateEngine`, `GameEngine`, `EngineCallbacks` y `GameStats`.
-- `lib/engines/index.ts`: registro `ENGINES`, de `game.id` a motor.
+- `lib/engines/index.ts`: registro `ENGINES`, de `game.id` a motor. Cada entrada declara `load: () => import("./<id>/game").then((m) => m.create<Nombre>Game)`: el motor se descarga bajo demanda, nunca con import estático.
 - `lib/engines/asteroides/game.ts`: modelo a seguir (estado en un cierre, `notify`, `start`, `stop`, `pause`, `destroy`).
 
 La plataforma ya resuelve, y el motor no debe duplicar:
