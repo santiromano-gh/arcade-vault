@@ -61,7 +61,7 @@ Viven en `.claude/agents/`.
 - **`game-planner`** (`.claude/agents/game-planner.md`): planifica y decide qué juego encaja con la plataforma. Es el paso previo a `/nuevo-juego`: **`game-planner` → `/nuevo-juego <id>` → aprobar la spec → `/spec-impl NN-juego-<id>`**.
   - Propone 2 o 3 candidatos, recomienda uno y lo compara con una tabla de criterios. Los prioritarios son diversidad de categorías (evita las ya cubiertas y prioriza géneros que faltan, como RACING, RPG o FIGHTING), factibilidad en Canvas 2D con el stack actual y reconocimiento clásico (mecánicas arcade icónicas, siempre con nombre, estética y giro de diseño propios, sin copiar juegos existentes).
   - Memoria persistente (`memory: project`) en `.claude/agent-memory/game-planner/`, versionada en git: guarda preferencias y motivos de aceptación o rechazo.
-  - Registra sus sugerencias en el To Do `references/game-suggestions-todo.md` (pendiente, en spec, implementado, descartado) y nunca borra entradas, para no repetir sugerencias.
+  - Registra sus sugerencias en el To Do `references/game-suggestions-todo.md` (tablas de sugeridos, aceptados / en desarrollo, implementados y descartados) y nunca borra entradas, para no repetir sugerencias.
   - Solo lee el repositorio (sin web ni Supabase) y solo modifica el To Do y su memoria: no escribe specs, código ni migraciones.
   - Se invoca pidiéndolo, por ejemplo: "usa game-planner para sugerir el próximo juego".
 

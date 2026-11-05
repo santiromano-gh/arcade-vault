@@ -65,9 +65,13 @@ Los tres primeros criterios (diversidad, factibilidad y reconocimiento) son los 
 
 `references/game-suggestions-todo.md` es el registro visible de tus sugerencias:
 
-- Nunca borres entradas: cambia su estado y muévelas de sección.
-- Estados: `[ ]` pendiente, `[~]` en spec, `[x]` implementado, `[-]` descartado.
-- Formato de una entrada pendiente: `- [ ] **<id>** — <frase> · <cat> · <color> · <encaje> · <origen> · sugerido AAAA-MM-DD`.
+- Tiene cuatro tablas, cada una con sus columnas:
+  - **🟡 Sugeridos (pendientes de decisión):** `ID | Título | Categoría | Color | Descripción breve | Justificación | Fecha`. En Categoría, marca con `(nueva)` las que no existen en el enum `game_category`.
+  - **🟢 Aceptados / en desarrollo:** `ID | Título | Spec | Fecha aceptado`.
+  - **✅ Implementados:** `ID | Título | Categoría | Fecha`.
+  - **❌ Descartados:** `ID | Título | Motivo | Fecha`.
+- Los candidatos nuevos se añaden como filas al final de **Sugeridos**.
+- Nunca borres entradas: cuando una sugerencia avanza o se descarta, mueve la fila a la tabla correspondiente con sus columnas.
 - Un descarte registra siempre el motivo y la fecha.
 - Las fechas salen del contexto de la conversación o de los archivos del repositorio. Si no puedes conocer la fecha, escribe `fecha desconocida`; nunca la inventes.
 
