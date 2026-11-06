@@ -15,4 +15,10 @@ export const ENGINES: Partial<Record<string, EngineEntry>> = {
     lives: false,
     skins: true,
   },
+  "rebote-neon": {
+    load: () => import("./rebote-neon/game").then((m) => m.createReboteNeonGame),
+    controls: "ratón o flechas ← → para mover la paleta, Espacio o clic para lanzar.",
+    lives: true,
+    skins: true,
+  },
 };

@@ -830,6 +830,55 @@
     background-repeat: no-repeat;
     filter: drop-shadow(0 0 6px rgba(158, 158, 158, 0.45));
   }
+  /* Rebote Neón: un muro de 10×5 bloques en un único verde fósforo que se apaga fila a fila.
+     La pelota acaba de rebotar en la paleta y deja una estela de puntos camino del boquete
+     que ya ha abierto en el muro. ::before dibuja el muro (huecos, juntas y filas, en ese orden
+     de capas); ::after, la paleta, la pelota y la estela. Con un bloque de 10% × 20%, la columna c
+     se coloca en c·11,111% y la fila r en r·25%. */
+  .cover-rebote-neon {
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(0, 255, 136, 0.16), transparent 55%), #04120b;
+  }
+  .cover-rebote-neon::before,
+  .cover-rebote-neon::after {
+    content: "";
+    position: absolute;
+    background-repeat: no-repeat;
+  }
+  .cover-rebote-neon::before {
+    left: 8%;
+    top: 12%;
+    width: 84%;
+    height: 32%;
+    background:
+      linear-gradient(#04120b, #04120b) 55.556% 100% / 10% 20% no-repeat,
+      linear-gradient(#04120b, #04120b) 66.667% 100% / 10% 20% no-repeat,
+      linear-gradient(#04120b, #04120b) 66.667% 75% / 10% 20% no-repeat,
+      linear-gradient(#04120b, #04120b) 77.778% 100% / 10% 20% no-repeat,
+      repeating-linear-gradient(90deg, #04120b 0 2px, transparent 2px 10%),
+      repeating-linear-gradient(180deg, #04120b 0 2px, transparent 2px 20%),
+      linear-gradient(
+        180deg,
+        #00ff88 0 20%,
+        #00d672 20% 40%,
+        #00ad5c 40% 60%,
+        #008547 60% 80%,
+        #005f33 80% 100%
+      );
+    filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.35));
+  }
+  .cover-rebote-neon::after {
+    inset: 0;
+    background:
+      radial-gradient(circle at 62% 50%, #eafff3 0 5px, transparent 6px),
+      radial-gradient(circle at 59.5% 58%, rgba(0, 255, 136, 0.75) 0 4px, transparent 5px),
+      radial-gradient(circle at 57% 66%, rgba(0, 255, 136, 0.5) 0 3px, transparent 4px),
+      radial-gradient(circle at 54.5% 74%, rgba(0, 255, 136, 0.3) 0 2px, transparent 3px),
+      radial-gradient(circle at 52% 82%, rgba(0, 255, 136, 0.15) 0 1.5px, transparent 2.5px),
+      linear-gradient(90deg, #00ff88 0 12%, #eafff3 12% 88%, #00ff88 88%) 51.282% 89.119% / 22% 3.5%
+        no-repeat;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.6));
+  }
   /* ===== detail screen ===== */
   .av-detail {
     display: grid;
