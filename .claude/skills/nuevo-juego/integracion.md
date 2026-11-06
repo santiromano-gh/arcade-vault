@@ -13,6 +13,20 @@ La plataforma ya resuelve, y el motor no debe duplicar:
 - `components/game-canvas.tsx`: buffer con `devicePixelRatio` y ciclo de vida compatible con Strict Mode.
 - `components/game-player.tsx`: pausa, tecla P, `visibilitychange`, FIN, SALIR, modal y guardado con `submitScore`.
 
+## Skins
+
+Cada juego ofrece tres skins: **CLÁSICO** (predeterminada), **NEÓN** y **RETRO**. Las aplica el agente `skin-designer` juego a juego; el estado está en `references/game-with-themes.md`. **Todo motor nuevo debe incluir `lib/engines/<id>/skins.ts` con las tres skins desde el primer día.**
+
+- `lib/engines/skins.ts`: `SkinId` (`"clasico" | "neon" | "retro"`), `SKIN_IDS`, `DEFAULT_SKIN` (`"clasico"`), `SKIN_LABELS` e `isSkinId()`. Sin `window` a nivel de módulo.
+- `lib/engines/types.ts`: `GameEngine.setSkin?(skin)` y `EngineEntry.skins?` son opcionales para que los motores sin skins sigan compilando. Un juego con skins declara `skins: true` en `ENGINES` e implementa `setSkin`.
+- `lib/engines/<id>/skins.ts`: un tipo `<Nombre>Palette` con **todos** los colores del dibujo (fondo, entidades, HUD y textos del canvas, overlays, efectos) y `export const SKINS: Record<SkinId, <Nombre>Palette>`. El `Record` obliga a definir las tres.
+- El motor guarda la paleta activa en su cierre (`let palette = SKINS[DEFAULT_SKIN]`). `setSkin` la sustituye y, si el bucle está detenido (pausa), dibuja un frame. Nunca reinicia la partida ni toca puntuación, físicas o controles.
+- Ningún color literal en el código de dibujo. Las diferencias entre skins son datos de la paleta (`glow` para `shadowBlur`, rellenos opcionales, multiplicador de grosor), no `if (skin === …)`. Tras cada trazo con resplandor, `shadowBlur = 0`.
+- CLÁSICO copia exactamente el aspecto original. NEÓN usa los tokens de la plataforma (`#00f5ff`, `#ff006e`, `#f5ff00`, `#00ff88`) sobre `#0a0a0f` con resplandor de 6 a 16. RETRO es una paleta limitada (fósforo u 8-bit) sin resplandor.
+- Modo oscuro (contraste WCAG calculado): fondo con luminancia ≤ la de `--bg-3` (`#15151f`), textos y HUD del canvas ≥ 4.5:1, elementos de juego ≥ 3:1, elementos que deben distinguirse con tonos claramente distintos (en RETRO monocromo, por luminosidad, relleno o borde).
+- `lib/skins.ts`: hook `useSkin(gameId)` con `localStorage` (clave `av_skin_<gameId>`); valor ausente o inválido → `DEFAULT_SKIN`.
+- `components/game-player.tsx`: muestra el selector solo si `entry.skins === true`, aplica la skin en `onEngine` y en un efecto, y quita el foco del botón tras el clic para no robar el teclado al juego.
+
 ## Reglas de datos
 
 - `games.id` debe coincidir con la clave de `ENGINES`. Sin fila en `games`, `/juegos/<id>/jugar` da 404 y no se puede guardar.

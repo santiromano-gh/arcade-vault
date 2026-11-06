@@ -1127,6 +1127,86 @@
       display: flex;
     }
   }
+  /* Selector de skins: teclas de enclavamiento del gabinete. La elegida queda hundida y con su
+     LED encendido en el tono de la skin (RETRO, sin resplandor, como su paleta). */
+  .skin-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-2);
+  }
+  .skin-switch-label {
+    margin-right: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .skin-key {
+    --led: var(--ink);
+    --led-glow: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-family: var(--pixel);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    color: var(--ink-dim);
+    background: linear-gradient(#1b1b22, #121218);
+    border: 1px solid #2a2a35;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 #050507;
+    cursor: pointer;
+    transition:
+      color 120ms,
+      transform 80ms ease,
+      box-shadow 80ms ease;
+  }
+  .skin-key:hover {
+    color: var(--ink);
+  }
+  .skin-key[aria-pressed="true"] {
+    color: var(--ink);
+    background: #0d0d13;
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  .skin-key:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+  .skin-led {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2a2a35;
+  }
+  .skin-key[aria-pressed="true"] .skin-led {
+    background: var(--led);
+    box-shadow: 0 0 6px var(--led-glow);
+  }
+  .skin-key[data-skin="clasico"] {
+    --led: var(--ink);
+    --led-glow: rgba(230, 233, 255, 0.6);
+  }
+  .skin-key[data-skin="neon"] {
+    --led: var(--cyan);
+    --led-glow: var(--cyan);
+  }
+  .skin-key[data-skin="retro"] {
+    --led: #ffb000;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skin-key {
+      transition: none;
+    }
+  }
   /* fake in-screen game */
   .game-arena {
     position: absolute;

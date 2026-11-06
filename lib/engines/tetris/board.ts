@@ -3,18 +3,8 @@
 export const COLS = 10;
 export const ROWS = 20;
 export const BLOCK = 30;
-// Índice 0 = celda vacía; 1–8 = tipo de pieza.
-export const COLORS: readonly (string | null)[] = [
-  null,
-  "#4dd0e1", // I - cian
-  "#ffd54f", // O - amarillo
-  "#ba68c8", // T - morado
-  "#81c784", // S - verde
-  "#e57373", // Z - rojo
-  "#90caf9", // J - azul pálido
-  "#ffb74d", // L - naranja
-  "#9e9e9e", // N - tuerca (gris metálico)
-];
+// Valor de cada celda: 0 = vacía; 1–8 = tipo de pieza. Los colores de cada tipo viven en la
+// paleta de la skin activa (skins.ts).
 export type Shape = number[][];
 export type Board = number[][];
 export interface Piece {
