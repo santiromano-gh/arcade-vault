@@ -43,8 +43,9 @@ Antes de escribir una spec nueva, lee las dos más recientes para seguir sus con
 - `lib/engines/index.ts` es el registro `ENGINES` (`game.id` → `{ load, controls, lives }`). Cada motor se carga con `import()` dinámico: nunca con import estático.
 - La plataforma ya resuelve, y el motor no debe duplicar: `components/game-canvas.tsx` (buffer con `devicePixelRatio`, ciclo de vida compatible con Strict Mode) y `components/game-player.tsx` (HUD, pausa con P, `visibilitychange`, FIN, SALIR, modal y guardado con `submitScore`).
 - El motor nunca habla con Supabase: solo notifica a React con `onStats` / `onGameOver`.
+- Skins CLÁSICO (por defecto), NEÓN y RETRO con buen contraste sobre fondo oscuro: las implementa el agente `skin-designer` juego a juego; el estado de cada uno está en `references/game-with-themes.md`.
 - Resolución lógica 800×600 (4:3). Las reglas de integración, las trampas de portado y los límites de la plataforma están en `.claude/skills/nuevo-juego/integracion.md`.
-- `references/` contiene prototipos (`02-asteroids`, `03-tetris`, `04-arkanoid`), el mock de diseño (`templates/`) y el To Do de sugerencias de juegos (`game-suggestions-todo.md`, lo mantiene el agente `game-planner`). No es código de la app: ESLint lo ignora; ignora también `__MACOSX/`.
+- `references/` contiene prototipos (`02-asteroids`, `03-tetris`, `04-arkanoid`), el mock de diseño (`templates/`) y el To Do de sugerencias de juegos (`game-suggestions-todo.md`, lo mantiene el agente `game-planner`) y el registro de skins (`game-with-themes.md`, lo mantiene el agente `skin-designer`). No es código de la app: ESLint lo ignora; ignora también `__MACOSX/`.
 
 ### Sesión
 
@@ -72,6 +73,12 @@ Viven en `.claude/agents/`.
   - Memoria persistente (`memory: project`) en `.claude/agent-memory/game-jam/`: temas usados e ids generados.
   - Solo escribe en `specs/game-jam/<id>/` y en su memoria; lee el To Do de `game-planner` sin modificarlo, y no escribe código ni migraciones.
   - Se invoca pidiéndolo, por ejemplo: "usa game-jam con el tema océano".
+- **`skin-designer`** (`.claude/agents/skin-designer.md`): aplica a **un solo juego por invocación, el que indique el usuario**, las skins **CLÁSICO** (la predeterminada, idéntica al aspecto original), **NEÓN** y **RETRO**. Sin `id` no modifica nada y muestra el estado del registro.
+  - Registro: `references/game-with-themes.md` (infraestructura común y una fila por juego con el estado de cada skin). Lo mantiene el agente y nunca borra filas.
+  - Contrato: `lib/engines/skins.ts` (`SkinId`, `DEFAULT_SKIN`), `GameEngine.setSkin?()` y `EngineEntry.skins?` (opcionales para que los juegos sin skins sigan igual), `lib/engines/<id>/skins.ts` con `SKINS: Record<SkinId, Palette>` y el hook `useSkin(gameId)` en `lib/skins.ts` (`localStorage`, clave `av_skin_<gameId>`). El selector del reproductor solo aparece en juegos con `skins: true` y el cambio no reinicia la partida.
+  - Modo oscuro: calcula el contraste WCAG de cada skin sobre el fondo oscuro (fondo ≤ luminancia de `--bg-3`, textos/HUD ≥ 4.5:1, elementos de juego ≥ 3:1).
+  - Modifica solo el dibujo del motor indicado, el contrato de skins, `components/game-player.tsx`, los estilos del selector en `app/globals.css`, `integracion.md`, el registro y su memoria (`.claude/agent-memory/skin-designer/`). No toca la lógica de juego, Supabase, migraciones ni specs, y no hace commits.
+  - Se invoca con un juego, por ejemplo: "usa skin-designer con tetris".
 
 ## Herramientas de Claude Code
 
