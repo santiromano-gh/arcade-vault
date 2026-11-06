@@ -28,6 +28,8 @@ Viven en `specs/NN-<slug>.md` con un estado en la cabecera (`Borrador` → `Apro
 
 Antes de escribir una spec nueva, lee las dos más recientes para seguir sus convenciones.
 
+`specs/game-jam/<id>/` guarda las specs en `Borrador` que genera el agente `game-jam`: `01-plataforma-<id>.md`, `02-motor-<id>.md` y `03-progresion-<id>.md`. No están numeradas en la secuencia principal: tras revisarlas se mueven a `specs/NN-<slug>.md` antes de `/spec-impl`.
+
 ### Rutas
 
 - `/` inicio (muestra los 6 primeros juegos por `sort_order`), `/biblioteca` catálogo con filtro por categoría (`CATS`), `/juegos/[id]` detalle con leaderboard, `/juegos/[id]/jugar` reproductor, `/salon` Salón de la fama (top 12 por juego y "TU MEJOR MARCA"), `/acerca-de` con formulario de contacto, `/auth` inicio de sesión mock.
@@ -64,6 +66,12 @@ Viven en `.claude/agents/`.
   - Registra sus sugerencias en el To Do `references/game-suggestions-todo.md` (tablas de sugeridos, aceptados / en desarrollo, implementados y descartados) y nunca borra entradas, para no repetir sugerencias.
   - Solo lee el repositorio (sin web ni Supabase) y solo modifica el To Do y su memoria: no escribe specs, código ni migraciones.
   - Se invoca pidiéndolo, por ejemplo: "usa game-planner para sugerir el próximo juego".
+- **`game-jam`** (`.claude/agents/game-jam.md`): recibe un tema y diseña de forma autónoma un juego original. Flujo: **`game-jam <tema>` → revisar `specs/game-jam/<id>/` → aprobar y mover a `specs/NN-<slug>.md` → `/spec-impl` en orden 01 → 02 → 03**.
+  - Escribe tres specs completas con `.claude/skills/nuevo-juego/template.md` y el nivel de detalle de las SPEC 05 y 07: catálogo e integración (01), motor jugable MVP (02) y progresión y pulido (03).
+  - No pregunta: registra sus supuestos en "Decisiones" marcados _(supuesto del agente, revisar)_.
+  - Memoria persistente (`memory: project`) en `.claude/agent-memory/game-jam/`: temas usados e ids generados.
+  - Solo escribe en `specs/game-jam/<id>/` y en su memoria; lee el To Do de `game-planner` sin modificarlo, y no escribe código ni migraciones.
+  - Se invoca pidiéndolo, por ejemplo: "usa game-jam con el tema océano".
 
 ## Herramientas de Claude Code
 
