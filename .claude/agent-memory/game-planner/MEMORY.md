@@ -1,0 +1,1 @@
+- [Catálogo real y mocks](project_catalogo_y_mocks.md) — mocks borrados el 2026-11-05 no son descartes; ARCADE sin cubrir

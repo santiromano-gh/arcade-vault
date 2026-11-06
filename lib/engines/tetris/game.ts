@@ -1,11 +1,11 @@
 // Motor de TETRIS: port de references/03-tetris (game.js, index.html y style.css en tema
 // oscuro). Mecánicas, tablero, panel lateral y overlay son los del prototipo, dibujados en un
 // único canvas de 800×600; lo nuevo es la integración con React: estado en este cierre,
-// notificaciones, pausa, bloqueo del teclado y limpieza.
+// notificaciones, pausa, bloqueo del teclado, skins y limpieza.
+import { DEFAULT_SKIN } from "../skins";
 import type { CreateEngine, GameStats } from "../types";
 import {
   BLOCK,
-  COLORS,
   COLS,
   KICKS,
   LINE_SCORES,
@@ -20,6 +20,7 @@ import {
   randomPiece,
   rotateCW,
 } from "./board";
+import { SKINS } from "./skins";
 // Coordenadas lógicas del canvas.
 const W = 800;
 const H = 600;
@@ -29,17 +30,7 @@ const BOARD_H = ROWS * BLOCK;
 const PANEL_X = BOARD_X + BOARD_W + 20; // 20 px tras el tablero
 const MAX_SCORE = 10_000_000;
 const GHOST_ALPHA = 0.2;
-// Colores y tipografías del tema oscuro de style.css.
-const BG = "#0f0f17";
-const CANVAS_BG = "#1a1a25";
-const BORDER = "#2a2a3a";
-const GRID_LINE = "#22222e";
-const ACCENT = "#7aa2f7";
-const LABEL = "#555570";
-const CONTROLS_TEXT = "#888";
-const KBD_BG = "#22223a";
-const KBD_BORDER = "#3a3a5a";
-const KBD_TEXT = "#aaa";
+// Tipografías del tema oscuro de style.css; los colores están en la paleta de cada skin.
 const SANS = "system-ui, -apple-system, sans-serif";
 const MONO = '"Courier New", Courier, monospace';
 // Controles del panel, tal cual en index.html.
@@ -190,15 +181,74 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
   };
   window.addEventListener("keydown", onKeyDown);
   // ── Draw ────────────────────────────────────────────────────────────────────
+  // Paleta de la skin activa: solo cambia el dibujo, nunca el estado de la partida.
+  let palette = SKINS[DEFAULT_SKIN];
+  // Resplandor del trazo o relleno que se dibuje dentro de `paint`; después se apaga para no
+  // contaminar el resto del frame.
+  function withGlow(color: string, blur: number, paint: () => void) {
+    if (blur > 0) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = blur;
+    }
+    paint();
+    ctx.shadowBlur = 0;
+  }
   function drawBlock(px: number, py: number, colorIndex: number, alpha = 1) {
-    const color = COLORS[colorIndex];
-    if (!color) return;
+    // Celda vacía (0) o fuera de rango: no se dibuja nada.
+    const piece = colorIndex > 0 ? palette.pieces[colorIndex - 1] : undefined;
+    if (!piece) return;
+    const x = px + 1;
+    const y = py + 1;
+    const size = BLOCK - 2;
+    if (piece.pattern !== "hollow") {
+      ctx.globalAlpha = alpha * palette.blockFillAlpha;
+      ctx.fillStyle = piece.color;
+      ctx.fillRect(x, y, size, size);
+    }
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = color;
-    ctx.fillRect(px + 1, py + 1, BLOCK - 2, BLOCK - 2);
+    if (palette.blockStroke > 0) {
+      const inset = palette.blockStroke / 2;
+      ctx.strokeStyle = piece.color;
+      ctx.lineWidth = palette.blockStroke;
+      withGlow(piece.color, palette.blockGlow, () =>
+        ctx.strokeRect(
+          x + inset,
+          y + inset,
+          size - palette.blockStroke,
+          size - palette.blockStroke,
+        ),
+      );
+    }
     // Brillo superior
-    ctx.fillStyle = "rgba(255,255,255,0.12)";
-    ctx.fillRect(px + 1, py + 1, BLOCK - 2, 4);
+    if (palette.blockHighlight) {
+      ctx.fillStyle = palette.blockHighlight;
+      ctx.fillRect(x, y, size, 4);
+    }
+    // Marcas de patrón: distinguen piezas del mismo tono en paletas de pocos colores.
+    ctx.fillStyle = palette.blockMark;
+    ctx.strokeStyle = palette.blockMark;
+    switch (piece.pattern) {
+      case "dot":
+        ctx.fillRect(x + 10, y + 10, size - 20, size - 20);
+        break;
+      case "frame":
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 6, y + 6, size - 12, size - 12);
+        break;
+      case "stripes":
+        ctx.fillRect(x, y + 8, size, 3);
+        ctx.fillRect(x, y + 17, size, 3);
+        break;
+      case "hollow":
+        ctx.strokeStyle = piece.color;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(x + 2, y + 2, size - 4, size - 4);
+        ctx.fillStyle = piece.color;
+        ctx.fillRect(x + 11, y + 11, size - 22, size - 22);
+        break;
+      default:
+        break;
+    }
     ctx.globalAlpha = 1;
   }
   function drawPiece(piece: Piece, y: number, alpha = 1) {
@@ -213,9 +263,9 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
   }
   function drawTitle() {
     ctx.save();
-    setText(`900 36px ${MONO}`, ACCENT, 10);
-    ctx.shadowColor = "rgba(122,162,247,0.5)";
-    ctx.shadowBlur = 20;
+    setText(`900 36px ${MONO}`, palette.title, 10);
+    ctx.shadowColor = palette.titleGlowColor;
+    ctx.shadowBlur = palette.titleGlow;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     // El espaciado se añade también tras la última letra: se compensa para centrar.
@@ -223,9 +273,9 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
     ctx.restore();
   }
   function drawBoard() {
-    ctx.fillStyle = CANVAS_BG;
+    ctx.fillStyle = palette.boardBg;
     ctx.fillRect(BOARD_X, 0, BOARD_W, BOARD_H);
-    ctx.strokeStyle = GRID_LINE;
+    ctx.strokeStyle = palette.grid;
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     for (let c = 1; c < COLS; c++) {
@@ -244,27 +294,35 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
       drawPiece(current, ghostY(board, current), GHOST_ALPHA);
       drawPiece(current, current.y);
     }
-    ctx.strokeStyle = BORDER;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(BOARD_X + 0.5, 0.5, BOARD_W - 1, BOARD_H - 1);
+    ctx.strokeStyle = palette.border;
+    ctx.lineWidth = palette.borderWidth;
+    const inset = palette.borderWidth / 2;
+    withGlow(palette.border, palette.borderGlow, () =>
+      ctx.strokeRect(
+        BOARD_X + inset,
+        inset,
+        BOARD_W - palette.borderWidth,
+        BOARD_H - palette.borderWidth,
+      ),
+    );
   }
   // Panel lateral de index.html: secciones con 20 px entre ellas y 6 px entre etiqueta y valor.
   function drawLabel(text: string, y: number) {
-    setText(`600 10px ${SANS}`, LABEL, 2);
+    setText(`600 10px ${SANS}`, palette.label, 2);
     ctx.fillText(text, PANEL_X, y);
     return y + 12 + 6;
   }
   function drawValue(label: string, value: string, y: number) {
     const valueY = drawLabel(label, y);
-    setText(`bold 26px ${MONO}`, ACCENT, 1);
+    setText(`bold 26px ${MONO}`, palette.value, 1);
     ctx.fillText(value, PANEL_X, valueY);
     return valueY + 30 + 20;
   }
   function drawNext(y: number) {
     const boxY = drawLabel("NEXT", y);
     const size = 4 * BLOCK;
-    ctx.fillStyle = CANVAS_BG;
-    ctx.strokeStyle = BORDER;
+    ctx.fillStyle = palette.boardBg;
+    ctx.strokeStyle = palette.border;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.roundRect(PANEL_X + 0.5, boxY + 0.5, size - 1, size - 1, 4);
@@ -279,17 +337,17 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
     return boxY + size + 20;
   }
   function drawKbd(text: string, x: number, y: number) {
-    setText(`11px ${SANS}`, KBD_TEXT);
+    setText(`11px ${SANS}`, palette.kbdText);
     const w = ctx.measureText(text).width + 14;
     const h = 17;
-    ctx.fillStyle = KBD_BG;
-    ctx.strokeStyle = KBD_BORDER;
+    ctx.fillStyle = palette.kbdBg;
+    ctx.strokeStyle = palette.kbdBorder;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 3);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = KBD_TEXT;
+    ctx.fillStyle = palette.kbdText;
     ctx.fillText(text, x + 7, y + 2);
     return x + w + 4;
   }
@@ -298,7 +356,7 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
     for (const { keys, text } of CONTROLS) {
       let x = PANEL_X;
       for (const key of keys) x = drawKbd(key, x, rowY);
-      setText(`12px ${SANS}`, CONTROLS_TEXT);
+      setText(`12px ${SANS}`, palette.controls);
       ctx.fillText(text, x, rowY + 2);
       rowY += 17 + 6;
     }
@@ -317,20 +375,22 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
   }
   function drawGameOver() {
     ctx.save();
-    ctx.fillStyle = "rgba(10,10,20,0.75)";
+    ctx.fillStyle = palette.overlay;
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    setText(`800 28px ${SANS}`, "#e57373", 4);
-    ctx.fillText("GAME OVER", W / 2 + 2, H / 2 - 13);
-    setText(`14px ${MONO}`, ACCENT);
+    setText(`800 28px ${SANS}`, palette.overlayTitle, 4);
+    withGlow(palette.overlayTitle, palette.overlayGlow, () =>
+      ctx.fillText("GAME OVER", W / 2 + 2, H / 2 - 13),
+    );
+    setText(`14px ${MONO}`, palette.overlayText);
     ctx.fillText(`Puntuación: ${formatScore(score)}`, W / 2, H / 2 + 19);
     ctx.restore();
   }
   function draw() {
     // El buffer puede ser mayor que 800×600 (devicePixelRatio): se dibuja en coordenadas lógicas.
     ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
-    ctx.fillStyle = BG;
+    ctx.fillStyle = palette.background;
     ctx.fillRect(0, 0, W, H);
     drawTitle();
     drawBoard();
@@ -384,6 +444,11 @@ export const createTetrisGame: CreateEngine = (canvas, callbacks) => {
     },
     setInputEnabled(enabled) {
       inputEnabled = enabled;
+    },
+    setSkin(skin) {
+      palette = SKINS[skin];
+      // Con el bucle detenido (pausa) se dibuja un frame para que el cambio se vea ya.
+      if (!destroyed && frame === null) draw();
     },
     destroy() {
       destroyed = true;

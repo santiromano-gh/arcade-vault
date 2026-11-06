@@ -7,10 +7,18 @@ export const ENGINES: Partial<Record<string, EngineEntry>> = {
     load: () => import("./asteroides/game").then((m) => m.createAsteroidesGame),
     controls: "flechas para rotar y propulsar, Espacio para disparar.",
     lives: true,
+    skins: true,
   },
   tetris: {
     load: () => import("./tetris/game").then((m) => m.createTetrisGame),
     controls: "flechas ← → para mover y ↓ para bajar, ↑ o X para rotar, Espacio para soltar.",
     lives: false,
+    skins: true,
+  },
+  "rebote-neon": {
+    load: () => import("./rebote-neon/game").then((m) => m.createReboteNeonGame),
+    controls: "ratón o flechas ← → para mover la paleta, Espacio o clic para lanzar.",
+    lives: true,
+    skins: true,
   },
 };

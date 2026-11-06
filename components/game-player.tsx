@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { submitScore } from "@/app/juegos/[id]/jugar/actions";
 import { GameCanvas } from "@/components/game-canvas";
 import { ENGINES } from "@/lib/engines";
+import { SKIN_IDS, SKIN_LABELS } from "@/lib/engines/skins";
 import type { CreateEngine, EngineEntry, GameEngine, GameStats } from "@/lib/engines/types";
 import type { Game } from "@/lib/games";
 import { normalizeName, useSession } from "@/lib/session";
+import { useSkin } from "@/lib/skins";
 interface Run {
   score: number;
   level: number;
@@ -20,9 +22,7 @@ function advance(run: Run, points: number): Run {
   return { score, level: score % 2500 < 100 ? run.level + 1 : run.level };
 }
 type EngineLoad =
-  | { status: "loading" }
-  | { status: "ready"; create: CreateEngine }
-  | { status: "failed" };
+  { status: "loading" } | { status: "ready"; create: CreateEngine } | { status: "failed" };
 // Descarga el motor bajo demanda (import() dinámico del registro). El reproductor se monta
 // con key={game.id}, así que `entry` no cambia durante la vida del componente.
 function useEngine(entry: EngineEntry | undefined): EngineLoad {
@@ -47,6 +47,9 @@ export function GamePlayer({ game }: { game: Game }) {
   const engineLoad = useEngine(entry);
   // Los juegos mock, sin entrada, siguen mostrando Vidas.
   const showLives = entry?.lives ?? true;
+  // Skin persistida por juego; el selector solo aparece si el motor declara skins: true.
+  const [skin, setSkin] = useSkin(game.id);
+  const showSkins = entry?.skins === true;
   const engineRef = useRef<GameEngine | null>(null);
   const [run, setRun] = useState<Run>(NEW_RUN);
   const [lives, setLives] = useState(3);
@@ -76,6 +79,10 @@ export function GamePlayer({ game }: { game: Game }) {
   useEffect(() => {
     engineRef.current?.setInputEnabled(!over);
   }, [over]);
+  // La skin solo cambia el dibujo: la partida sigue sin reiniciarse.
+  useEffect(() => {
+    engineRef.current?.setSkin?.(skin);
+  }, [skin]);
   // Tecla P y pausa automática al ocultar la pestaña, solo para juegos con motor.
   useEffect(() => {
     if (!entry) return;
@@ -99,6 +106,7 @@ export function GamePlayer({ game }: { game: Game }) {
     // Un motor recién creado arranca con el estado actual de React.
     if (engine && paused) engine.pause();
     if (engine && over) engine.setInputEnabled(false);
+    engine?.setSkin?.(skin);
   };
   const syncStats = (stats: GameStats) => {
     setRun({ score: stats.score, level: stats.level });
@@ -240,6 +248,30 @@ export function GamePlayer({ game }: { game: Game }) {
           <span>{game.title} · CRT-83 · 60 HZ</span>
           <span>CARGA · 1MB</span>
         </div>
+        {showSkins && (
+          <div className="skin-switch" role="group" aria-label="Skin del juego">
+            <span className="skin-switch-label" aria-hidden="true">
+              Skin
+            </span>
+            {SKIN_IDS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className="skin-key"
+                data-skin={id}
+                aria-pressed={skin === id}
+                onClick={(e) => {
+                  setSkin(id);
+                  // Sin foco, Espacio y las flechas vuelven al juego en vez de pulsar la tecla.
+                  e.currentTarget.blur();
+                }}
+              >
+                <span className="skin-led" aria-hidden="true" />
+                {SKIN_LABELS[id]}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {over && (
         <div className="modal-bd">

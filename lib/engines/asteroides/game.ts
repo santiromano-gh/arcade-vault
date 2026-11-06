@@ -1,6 +1,7 @@
 // Motor de ASTEROIDES: port de references/02-asteroids/game.js. Update, draw, HUD y overlay
 // son los del prototipo; lo nuevo es lo que exige la integración con React: el estado vive en
 // este cierre (sin globales), notificaciones a React, pausa, bloqueo del teclado y limpieza.
+import { DEFAULT_SKIN } from "../skins";
 import type { CreateEngine, GameStats } from "../types";
 import {
   Asteroid,
@@ -14,7 +15,9 @@ import {
   W,
   dist,
   rand,
+  withGlow,
 } from "./entities";
+import { SKINS } from "./skins";
 const POWERUP_DROP_CHANCE = 0.15;
 // Teclas que el juego usa y que no deben hacer scroll en la página.
 const GAME_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"]);
@@ -207,12 +210,14 @@ export const createAsteroidesGame: CreateEngine = (canvas, callbacks) => {
     if (asteroids.length === 0) nextLevel();
   }
   // ── Draw ────────────────────────────────────────────────────────────────────
+  // Paleta de la skin activa: cambiarla solo afecta al dibujo, nunca al estado de la partida.
+  let palette = SKINS[DEFAULT_SKIN];
   function drawLifeIcon(x: number, y: number) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(-Math.PI / 2);
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = palette.hud;
+    ctx.lineWidth = 1.2 * palette.lineScale;
     ctx.lineJoin = "round";
     ctx.beginPath();
     ctx.moveTo(9, 0);
@@ -220,42 +225,46 @@ export const createAsteroidesGame: CreateEngine = (canvas, callbacks) => {
     ctx.lineTo(-3, 0);
     ctx.lineTo(-6, 5);
     ctx.closePath();
-    ctx.stroke();
+    withGlow(ctx, palette, palette.hud, () => ctx.stroke());
     ctx.restore();
   }
   function drawHUD() {
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = palette.hud;
     ctx.font = "15px monospace";
     ctx.textAlign = "left";
-    ctx.fillText(`SCORE  ${score}`, 14, 26);
-    ctx.textAlign = "center";
-    ctx.fillText(`NIVEL ${level}`, W / 2, 26);
+    withGlow(ctx, palette, palette.hud, () => {
+      ctx.fillText(`SCORE  ${score}`, 14, 26);
+      ctx.textAlign = "center";
+      ctx.fillText(`NIVEL ${level}`, W / 2, 26);
+    });
     for (let i = 0; i < lives; i++) drawLifeIcon(W - 16 - i * 22, 18);
     if (ship.tripleShot > 0) {
       ctx.textAlign = "left";
-      ctx.fillStyle = "#0ff";
-      ctx.fillText(`3x  ${ship.tripleShot.toFixed(1)}s`, 14, 46);
+      ctx.fillStyle = palette.hudAccent;
+      withGlow(ctx, palette, palette.hudAccent, () =>
+        ctx.fillText(`3x  ${ship.tripleShot.toFixed(1)}s`, 14, 46),
+      );
     }
   }
   function drawOverlay(title: string, sub: string) {
     ctx.textAlign = "center";
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = palette.overlayTitle;
     ctx.font = "bold 46px monospace";
-    ctx.fillText(title, W / 2, H / 2 - 18);
+    withGlow(ctx, palette, palette.overlayTitle, () => ctx.fillText(title, W / 2, H / 2 - 18));
     ctx.font = "18px monospace";
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillStyle = palette.overlaySub;
     ctx.fillText(sub, W / 2, H / 2 + 22);
   }
   function draw() {
     // El buffer puede ser mayor que 800×600 (devicePixelRatio): se dibuja en coordenadas lógicas.
     ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = palette.background;
     ctx.fillRect(0, 0, W, H);
-    particles.forEach((p) => p.draw(ctx));
-    asteroids.forEach((a) => a.draw(ctx));
-    powerUps.forEach((p) => p.draw(ctx));
-    bullets.forEach((b) => b.draw(ctx));
-    ship.draw(ctx);
+    particles.forEach((p) => p.draw(ctx, palette));
+    asteroids.forEach((a) => a.draw(ctx, palette));
+    powerUps.forEach((p) => p.draw(ctx, palette));
+    bullets.forEach((b) => b.draw(ctx, palette));
+    ship.draw(ctx, palette);
     drawHUD();
     if (state === "gameover")
       drawOverlay("GAME OVER", `PUNTAJE: ${score}   —   ESPACIO PARA REINICIAR`);
@@ -314,6 +323,11 @@ export const createAsteroidesGame: CreateEngine = (canvas, callbacks) => {
     setInputEnabled(enabled) {
       inputEnabled = enabled;
       if (!enabled) clearInput();
+    },
+    setSkin(skin) {
+      palette = SKINS[skin];
+      // Con el bucle detenido (pausa) se dibuja un frame para que el cambio se vea ya.
+      if (!destroyed && frame === null) draw();
     },
     destroy() {
       destroyed = true;
