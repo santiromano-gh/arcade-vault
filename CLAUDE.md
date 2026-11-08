@@ -10,7 +10,7 @@ Arcade Vault — online gaming platform where users play classic arcade games an
 
 ## Stack
 
-- **Next.js 16.2.6** with App Router — read `node_modules/next/dist/docs/` before writing Next.js code; APIs differ from training data
+- **Next.js 16.4.5** with App Router — read `node_modules/next/dist/docs/` before writing Next.js code; APIs differ from training data
 - **React 19.2.4**
 - **Tailwind CSS v4** (PostCSS plugin via `@tailwindcss/postcss`)
 - **TypeScript**

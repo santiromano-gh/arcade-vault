@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 
 const TOTAL_POKEMON = 151;
@@ -20,11 +21,12 @@ export default function PokemonCounterPage(): React.ReactElement {
       <h1 className="text-3xl font-bold">Pokémon Counter</h1>
 
       <div className="flex flex-col items-center gap-4">
-        <img
+        <Image
           src={`${SPRITE_BASE_URL}/${pokemonId}.png`}
           alt={`Pokemon #${pokemonId}`}
           width={200}
           height={200}
+          unoptimized
           className="drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
         />
         <p className="text-sm text-gray-400">#{pokemonId}</p>

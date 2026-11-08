@@ -2,7 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
+import { usePlayerName } from '@/lib/hooks/usePlayerName';
 import { useUser } from '@/app/context/UserContext';
 import { createClient } from '@/lib/supabase/client';
 import MobileGamepad from '@/components/MobileGamepad';
@@ -18,11 +20,6 @@ const SKIN_OPTIONS = [
   { key: 'neon', label: 'Neon' },
 ];
 
-function getSavedSkin() {
-  if (typeof window === 'undefined') return 'classic';
-  return localStorage.getItem('asteroids-skin') ?? 'classic';
-}
-
 export default function AsteroidsPlay() {
   const { user, username } = useUser();
 
@@ -33,20 +30,12 @@ export default function AsteroidsPlay() {
   const livesEl = useRef<HTMLSpanElement>(null);
   const levelEl = useRef<HTMLSpanElement>(null);
   const [paused, setPaused] = useState(false);
-  const [over, setOver] = useState(false);
-  const [name, setName] = useState('INVITADO');
+  const [finalScore, setFinalScore] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const [gameKey, setGameKey] = useState(0);
-  const [skinKey, setSkinKey] = useState('classic');
-
-  useEffect(() => {
-    setSkinKey(getSavedSkin());
-  }, []);
-
-  function changeSkin(key: string) {
-    setSkinKey(key);
-    localStorage.setItem('asteroids-skin', key);
-  }
+  const [skinKey, changeSkin] = useLocalStorage('asteroids-skin', 'classic');
+  const { playerName, changePlayerName, rememberPlayerName, resetPlayerName } =
+    usePlayerName(username);
 
   const handleScoreChange = useCallback((s: number) => {
     scoreRef.current = s;
@@ -63,23 +52,12 @@ export default function AsteroidsPlay() {
     if (levelEl.current)
       levelEl.current.textContent = String(l).padStart(2, '0');
   }, []);
-  const handleGameOver = useCallback((finalScore: number) => {
-    scoreRef.current = finalScore;
+  const handleGameOver = useCallback((score: number) => {
+    scoreRef.current = score;
     if (scoreEl.current)
-      scoreEl.current.textContent = finalScore.toLocaleString('es-ES');
-    setOver(true);
+      scoreEl.current.textContent = score.toLocaleString('es-ES');
+    setFinalScore(score);
   }, []);
-
-  useEffect(() => {
-    if (over) {
-      if (username) {
-        setName(username);
-        return;
-      }
-      const saved = localStorage.getItem('av_player_name');
-      if (saved) setName(saved);
-    }
-  }, [over, username]);
 
   function restart() {
     scoreRef.current = 0;
@@ -89,10 +67,14 @@ export default function AsteroidsPlay() {
     if (livesEl.current) livesEl.current.textContent = '♥ ♥ ♥';
     if (levelEl.current) levelEl.current.textContent = '01';
     setPaused(false);
-    setOver(false);
+    setFinalScore(null);
     setSaved(false);
-    setName(username ?? 'INVITADO');
+    resetPlayerName();
     setGameKey((k) => k + 1);
+  }
+
+  function endGame() {
+    setFinalScore(scoreRef.current);
   }
 
   const keyMap = {
@@ -111,7 +93,7 @@ export default function AsteroidsPlay() {
             <div className="hud-stat">
               <div className="l">Jugador</div>
               <div className="v" style={{ color: 'var(--ink)' }}>
-                {name}
+                {playerName}
               </div>
             </div>
             <div className="hud-stat">
@@ -161,7 +143,7 @@ export default function AsteroidsPlay() {
             <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
               {paused ? 'REANUDAR' : 'PAUSA'}
             </button>
-            <button className="btn magenta" onClick={() => setOver(true)}>
+            <button className="btn magenta" onClick={endGame}>
               FIN
             </button>
             <Link href="/games/asteroids" className="btn ghost">
@@ -222,33 +204,29 @@ export default function AsteroidsPlay() {
         backHref="/games/asteroids"
       />
 
-      {over && (
+      {finalScore !== null && (
         <div className="modal-bd">
           <div className="modal">
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
-            <div className="final">
-              {scoreRef.current.toLocaleString('es-ES')}
-            </div>
+            <div className="final">{finalScore.toLocaleString('es-ES')}</div>
             {!saved ? (
               <div className="input-row">
                 <input
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value.toUpperCase().slice(0, 10))
-                  }
+                  value={playerName}
+                  onChange={(e) => changePlayerName(e.target.value)}
                   placeholder="TUS INICIALES"
                 />
                 <button
                   className="btn yellow"
                   onClick={async () => {
                     setSaved(true);
-                    localStorage.setItem('av_player_name', name);
+                    rememberPlayerName();
                     const supabase = createClient();
                     await supabase.from('scores').insert({
                       game_id: 'asteroids',
-                      player_name: name,
-                      score: scoreRef.current,
+                      player_name: playerName,
+                      score: finalScore,
                       user_id: user?.id ?? null,
                     });
                   }}

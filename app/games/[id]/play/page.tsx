@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { use, useEffect, useState } from 'react';
 import { useUser } from '@/app/context/UserContext';
 
+const POINTS_PER_LEVEL = 2500;
+
 export default function GamePlayer({
   params,
 }: {
@@ -14,7 +16,6 @@ export default function GamePlayer({
 
   const [score, setScore] = useState(0);
   const [lives] = useState(3);
-  const [level, setLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   const [name, setName] = useState('INVITADO');
@@ -29,13 +30,10 @@ export default function GamePlayer({
     return () => clearInterval(t);
   }, [over, paused]);
 
-  useEffect(() => {
-    if (score > 0 && score % 2500 < 100) setLevel((l) => l + 1);
-  }, [score]);
+  const level = 1 + Math.floor(score / POINTS_PER_LEVEL);
 
   function restart() {
     setScore(0);
-    setLevel(1);
     setPaused(false);
     setOver(false);
     setSaved(false);
