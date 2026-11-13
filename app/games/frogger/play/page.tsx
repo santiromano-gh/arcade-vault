@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
 import { usePlayerName } from '@/lib/hooks/usePlayerName';
-import { createClient } from '@/lib/supabase/client';
+import { saveScore } from '@/lib/scores';
 import { useUser } from '@/app/context/UserContext';
 import MobileGamepad from '@/components/MobileGamepad';
 
@@ -18,6 +18,9 @@ const SKIN_OPTIONS = [
   { key: 'retro', label: 'Retro' },
   { key: 'neon', label: 'Neon' },
 ];
+
+// Module-level so MobileGamepad receives a stable reference across renders.
+const GAMEPAD_KEY_MAP = { up: 'w', down: 's', left: 'a', right: 'd' };
 
 export default function FroggerPlay() {
   const { user, username } = useUser();
@@ -80,11 +83,12 @@ export default function FroggerPlay() {
     setGameKey((k) => k + 1);
   }
 
+  const togglePause = useCallback(() => setPaused((p) => !p), []);
+
   function endGame() {
     setFinalScore(scoreRef.current);
   }
 
-  const keyMap = { up: 'w', down: 's', left: 'a', right: 'd' };
 
   return (
     <div className="av-player fade-in">
@@ -149,7 +153,7 @@ export default function FroggerPlay() {
             </div>
           </div>
           <div className="hud-actions">
-            <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+            <button className="btn yellow" onClick={togglePause}>
               {paused ? 'REANUDAR' : 'PAUSA'}
             </button>
             <button className="btn magenta" onClick={endGame}>
@@ -208,9 +212,9 @@ export default function FroggerPlay() {
       </div>
 
       <MobileGamepad
-        keyMap={keyMap}
+        keyMap={GAMEPAD_KEY_MAP}
         paused={paused}
-        onPauseToggle={() => setPaused((p) => !p)}
+        onPauseToggle={togglePause}
         skin={skinKey}
         onSkinChange={changeSkin}
         backHref="/games/frogger"
@@ -234,12 +238,11 @@ export default function FroggerPlay() {
                   onClick={async () => {
                     setSaved(true);
                     rememberPlayerName();
-                    const supabase = createClient();
-                    await supabase.from('scores').insert({
-                      game_id: 'frogger',
-                      player_name: playerName,
+                    await saveScore({
+                      gameId: 'frogger',
+                      playerName,
                       score: finalScore,
-                      user_id: user?.id ?? null,
+                      userId: user?.id ?? null,
                     });
                   }}
                 >

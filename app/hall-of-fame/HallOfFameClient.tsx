@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useTransition } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import type { GameRow, ScoreRow } from '@/lib/supabase/types';
+import { useRef, useState, useTransition } from 'react';
+import type { GameSummary, LeaderboardEntry } from '@/lib/supabase/types';
+
+export const HALL_OF_FAME_LIMIT = 12;
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -37,25 +38,43 @@ export default function HallOfFameClient({
   initialScores,
   initialTab,
 }: {
-  games: GameRow[];
-  initialScores: ScoreRow[];
+  games: GameSummary[];
+  initialScores: LeaderboardEntry[];
   initialTab: string;
 }) {
   const [tab, setTab] = useState(initialTab);
   const [scores, setScores] = useState(initialScores);
   const [isPending, startTransition] = useTransition();
+  // Tabs already visited are served from memory instead of re-querying.
+  const scoresByGame = useRef(new Map([[initialTab, initialScores]]));
+  const activeTab = useRef(initialTab);
 
-  async function changeTab(gameId: string) {
+  function changeTab(gameId: string) {
+    if (gameId === tab) return;
     setTab(gameId);
+    activeTab.current = gameId;
+
+    const cached = scoresByGame.current.get(gameId);
+    if (cached) {
+      setScores(cached);
+      return;
+    }
+
     startTransition(async () => {
-      const supabase = createClient();
-      const { data } = await supabase
+      // supabase-js is only downloaded when the user switches tabs.
+      const { createClient } = await import('@/lib/supabase/client');
+      const { data } = await createClient()
         .from('scores')
-        .select('*')
+        .select('id, player_name, score, created_at')
         .eq('game_id', gameId)
         .order('score', { ascending: false })
-        .limit(12);
-      setScores((data as ScoreRow[]) ?? []);
+        .limit(HALL_OF_FAME_LIMIT);
+      const nextScores = data ?? [];
+      scoresByGame.current.set(gameId, nextScores);
+      // Ignore late responses from a tab the user already left.
+      if (activeTab.current === gameId) {
+        startTransition(() => setScores(nextScores));
+      }
     });
   }
 

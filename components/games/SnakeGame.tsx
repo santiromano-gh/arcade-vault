@@ -135,6 +135,12 @@ const SPEED_REDUCTION = 10;
 const FRUITS_PER_LEVEL = 5;
 
 // ── Fruit atlas (from references/source-assets/snake-assets/sprites.js) ──────
+// Coordinates refer to the original fruits.png. The shipped /fruits.webp only keeps
+// the fruit row (y = FRUIT_ATLAS_OFFSET_Y) downscaled by FRUIT_ATLAS_SCALE, since
+// sprites are drawn at CELL - 8 px.
+const FRUIT_ATLAS_SRC = '/fruits.webp';
+const FRUIT_ATLAS_OFFSET_Y = 136;
+const FRUIT_ATLAS_SCALE = 0.5;
 
 const FRUIT_SPRITES = [
   { x: 34, y: 136, w: 110, h: 160 }, // banana
@@ -291,7 +297,7 @@ function SnakeGame({
       if (!alive) return;
       startLoop();
     };
-    img.src = '/fruits.png';
+    img.src = FRUIT_ATLAS_SRC;
 
     // ── Draw ────────────────────────────────────────────────────────────────
     function draw() {
@@ -361,10 +367,10 @@ function SnakeGame({
       const padding = 4;
       ctx.drawImage(
         img,
-        sp.x,
-        sp.y,
-        sp.w,
-        sp.h,
+        sp.x * FRUIT_ATLAS_SCALE,
+        (sp.y - FRUIT_ATLAS_OFFSET_Y) * FRUIT_ATLAS_SCALE,
+        sp.w * FRUIT_ATLAS_SCALE,
+        sp.h * FRUIT_ATLAS_SCALE,
         fx + padding,
         fy + padding,
         CELL - padding * 2,

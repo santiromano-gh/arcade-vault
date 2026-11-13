@@ -77,6 +77,10 @@ export default function Nav() {
                 <img
                   src={avatarUrl}
                   alt={username}
+                  width={32}
+                  height={32}
+                  decoding="async"
+                  referrerPolicy="no-referrer"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               ) : (

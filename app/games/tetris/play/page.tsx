@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
 import { usePlayerName } from '@/lib/hooks/usePlayerName';
-import { createClient } from '@/lib/supabase/client';
+import { saveScore } from '@/lib/scores';
 import { useUser } from '@/app/context/UserContext';
 import MobileGamepad from '@/components/MobileGamepad';
 
@@ -19,6 +19,16 @@ const SKIN_OPTIONS = [
   { key: 'pastel', label: 'Pastel' },
   { key: 'pixel', label: 'Pixel Art' },
 ];
+
+// Module-level so MobileGamepad receives a stable reference across renders.
+const GAMEPAD_KEY_MAP = {
+  up: 'ArrowUp',
+  down: 'ArrowDown',
+  left: 'ArrowLeft',
+  right: 'ArrowRight',
+  a: 'ArrowUp',
+  b: 'Shift',
+};
 
 export default function TetrisPlay() {
   const { user, username } = useUser();
@@ -71,18 +81,12 @@ export default function TetrisPlay() {
     setGameKey((k) => k + 1);
   }
 
+  const togglePause = useCallback(() => setPaused((p) => !p), []);
+
   function endGame() {
     setFinalScore(scoreRef.current);
   }
 
-  const keyMap = {
-    up: 'ArrowUp',
-    down: 'ArrowDown',
-    left: 'ArrowLeft',
-    right: 'ArrowRight',
-    a: 'ArrowUp',
-    b: 'Shift',
-  };
 
   return (
     <div className="av-player fade-in">
@@ -139,7 +143,7 @@ export default function TetrisPlay() {
             </div>
           </div>
           <div className="hud-actions">
-            <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+            <button className="btn yellow" onClick={togglePause}>
               {paused ? 'REANUDAR' : 'PAUSA'}
             </button>
             <button className="btn magenta" onClick={endGame}>
@@ -197,9 +201,9 @@ export default function TetrisPlay() {
       </div>
 
       <MobileGamepad
-        keyMap={keyMap}
+        keyMap={GAMEPAD_KEY_MAP}
         paused={paused}
-        onPauseToggle={() => setPaused((p) => !p)}
+        onPauseToggle={togglePause}
         skin={skinKey}
         onSkinChange={changeSkin}
         backHref="/games/tetris"
@@ -223,12 +227,11 @@ export default function TetrisPlay() {
                   onClick={async () => {
                     setSaved(true);
                     rememberPlayerName();
-                    const supabase = createClient();
-                    await supabase.from('scores').insert({
-                      game_id: 'tetris',
-                      player_name: playerName,
+                    await saveScore({
+                      gameId: 'tetris',
+                      playerName,
                       score: finalScore,
-                      user_id: user?.id ?? null,
+                      userId: user?.id ?? null,
                     });
                   }}
                 >

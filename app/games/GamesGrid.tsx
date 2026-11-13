@@ -2,26 +2,35 @@
 
 import Link from 'next/link';
 import { useMemo, useRef, useState } from 'react';
-import type { GameRow } from '@/lib/supabase/types';
+import type { GameSummary } from '@/lib/supabase/types';
 
 const CATS = ['TODOS', 'ARCADE', 'PUZZLE', 'SHOOTER'] as const;
 type Cat = (typeof CATS)[number];
 
-function GameCard({ game }: { game: GameRow }) {
+function GameCard({ game }: { game: GameSummary }) {
   const ref = useRef<HTMLDivElement>(null);
+  const frame = useRef(0);
+  const pointer = useRef({ x: 0, y: 0 });
 
+  // mousemove fires several times per frame: keep the latest pointer and
+  // apply the tilt at most once per animation frame.
   function onMove(e: React.MouseEvent) {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    requestAnimationFrame(() => {
+    pointer.current = { x: e.clientX, y: e.clientY };
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(() => {
+      frame.current = 0;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const px = (pointer.current.x - r.left) / r.width - 0.5;
+      const py = (pointer.current.y - r.top) / r.height - 0.5;
       el.style.transform = `translateY(-6px) rotateX(${-py * 6}deg) rotateY(${px * 8}deg)`;
     });
   }
 
   function onLeave() {
+    cancelAnimationFrame(frame.current);
+    frame.current = 0;
     const el = ref.current;
     if (!el) return;
     el.style.transform = '';
@@ -57,7 +66,7 @@ function GameCard({ game }: { game: GameRow }) {
   );
 }
 
-export default function GamesGrid({ games }: { games: GameRow[] }) {
+export default function GamesGrid({ games }: { games: GameSummary[] }) {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState<Cat>('TODOS');
 

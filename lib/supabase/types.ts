@@ -10,6 +10,12 @@ export interface GameRow {
   created_at: string;
 }
 
+/** Columns needed to render a game card or tab — omits the long description. */
+export type GameSummary = Pick<
+  GameRow,
+  'id' | 'title' | 'short' | 'cat' | 'cover' | 'color'
+>;
+
 export interface ScoreRow {
   id: string;
   game_id: string;
@@ -18,3 +24,9 @@ export interface ScoreRow {
   user_id: string | null;
   created_at: string;
 }
+
+/** Columns needed to render a leaderboard row. */
+export type LeaderboardEntry = Pick<
+  ScoreRow,
+  'id' | 'player_name' | 'score' | 'created_at'
+>;

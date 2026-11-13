@@ -1,8 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import type { Session, User } from '@supabase/supabase-js';
 
 interface UserContextValue {
   user: User | null;
@@ -20,49 +26,59 @@ const UserContext = createContext<UserContextValue>({
   signOut: async () => {},
 });
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+// supabase-js is loaded after hydration so it stays out of every page's initial bundle.
+const loadSupabaseClient = () =>
+  import('@/lib/supabase/client').then(({ createClient }) => createClient());
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function signOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-  }
-
-  const username =
+function deriveUsername(user: User | null): string | null {
+  return (
     user?.user_metadata?.username ??
     user?.user_metadata?.full_name?.split(' ')[0]?.toUpperCase().slice(0, 10) ??
     user?.email?.split('@')[0]?.toUpperCase().slice(0, 10) ??
-    null;
-
-  const avatarUrl: string | null =
-    user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
-
-  return (
-    <UserContext.Provider
-      value={{ user, session, username, avatarUrl, signOut }}
-    >
-      {children}
-    </UserContext.Provider>
+    null
   );
+}
+
+export function UserProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+
+    loadSupabaseClient().then((supabase) => {
+      if (cancelled) return;
+      // onAuthStateChange emits INITIAL_SESSION on subscribe, so no separate getSession() is needed.
+      const { data } = supabase.auth.onAuthStateChange((_event, nextSession) =>
+        setSession(nextSession),
+      );
+      unsubscribe = () => data.subscription.unsubscribe();
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const supabase = await loadSupabaseClient();
+    await supabase.auth.signOut();
+  }, []);
+
+  const value = useMemo<UserContextValue>(() => {
+    const user = session?.user ?? null;
+    return {
+      user,
+      session,
+      username: deriveUsername(user),
+      avatarUrl:
+        user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null,
+      signOut,
+    };
+  }, [session, signOut]);
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

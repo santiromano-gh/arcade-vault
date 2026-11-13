@@ -705,7 +705,7 @@ function ArkanoidGame({
       rafId = requestAnimationFrame(loop);
     };
     rawImg.onerror = () => console.error('Failed to load spritesheet');
-    rawImg.src = '/spritesheet-breakout.png';
+    rawImg.src = '/spritesheet-breakout.webp';
 
     return () => {
       cleaned = true;

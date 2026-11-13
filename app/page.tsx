@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
-import type { GameRow } from '@/lib/supabase/types';
+import { getGames } from '@/lib/data/games';
+import type { GameSummary } from '@/lib/supabase/types';
 import RevealObserver from './RevealObserver';
+
+const HOME_GAMES_LIMIT = 6;
 
 const SCORES = [
   { p: 'NEONFOX', g: 'Caída', s: 184220, t: 'hace 2 min', c: 'magenta' },
@@ -201,7 +203,7 @@ function FeatureIcon({ kind }: { kind: string }) {
   return null;
 }
 
-function MiniCard({ game }: { game: GameRow }) {
+function MiniCard({ game }: { game: GameSummary }) {
   return (
     <Link href={`/games/${game.id}`} className="mini-card">
       <div className="mini-cover">
@@ -216,13 +218,7 @@ function MiniCard({ game }: { game: GameRow }) {
 }
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('games')
-    .select('*')
-    .order('created_at', { ascending: true })
-    .limit(6);
-  const games = (data as GameRow[]) ?? [];
+  const games = (await getGames()).slice(0, HOME_GAMES_LIMIT);
 
   return (
     <div className="home fade-in">

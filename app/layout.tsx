@@ -1,7 +1,21 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "./context/UserContext";
 import Nav from "@/components/Nav";
+
+const pixelFont = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-pixel",
+});
+
+const monoFont = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
+});
 
 export const metadata: Metadata = {
   title: "Arcade Vault",
@@ -14,7 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html
+      lang="en"
+      className={`h-full ${pixelFont.variable} ${monoFont.variable}`}
+    >
       <body className="min-h-full flex flex-col">
         <UserProvider>
           <div className="av-bg" />

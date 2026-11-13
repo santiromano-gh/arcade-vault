@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&family=Courier+Prime:wght@400;700&display=swap');
 @import 'tailwindcss';
 
 /* ===== ARCADE VAULT — theme ===== */
@@ -18,8 +17,9 @@
   --bronze: #d97a3a;
   --line: rgba(0, 245, 255, 0.18);
   --line-2: rgba(255, 255, 255, 0.06);
-  --pixel: 'Press Start 2P', system-ui, monospace;
-  --mono: 'JetBrains Mono', 'Courier Prime', 'Courier New', monospace;
+  /* Font families are self-hosted by next/font (see app/layout.tsx). */
+  --pixel: var(--font-pixel), system-ui, monospace;
+  --mono: var(--font-jetbrains-mono), 'Courier New', monospace;
 }
 
 * {

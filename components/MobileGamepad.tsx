@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import Link from 'next/link';
 import styles from './MobileGamepad.module.css';
 
@@ -200,7 +200,7 @@ function ActionButton({
     >
       <span
         style={{
-          fontFamily: "'Press Start 2P', monospace",
+          fontFamily: 'var(--pixel)',
           fontSize: 16,
           color: '#fff',
           letterSpacing: '0.02em',
@@ -213,7 +213,7 @@ function ActionButton({
   );
 }
 
-export default function MobileGamepad({
+function MobileGamepad({
   keyMap,
   paused,
   onPauseToggle,
@@ -434,3 +434,6 @@ export default function MobileGamepad({
     </div>
   );
 }
+
+// Memoized: play pages re-render on every HUD/modal change (e.g. typing the player name).
+export default memo(MobileGamepad);

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import type { GameRow, ScoreRow } from '@/lib/supabase/types';
+import { getGame, getTopScores } from '@/lib/data/games';
+
+const LEADERBOARD_LIMIT = 10;
 
 export default async function GameDetail({
   params,
@@ -9,22 +10,13 @@ export default async function GameDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
-
-  const [{ data: game }, { data: scores }] = await Promise.all([
-    supabase.from('games').select('*').eq('id', id).single(),
-    supabase
-      .from('scores')
-      .select('*')
-      .eq('game_id', id)
-      .order('score', { ascending: false })
-      .limit(10),
+  const [typedGame, typedScores] = await Promise.all([
+    getGame(id),
+    getTopScores(id, LEADERBOARD_LIMIT),
   ]);
 
-  if (!game) notFound();
+  if (!typedGame) notFound();
 
-  const typedGame = game as GameRow;
-  const typedScores = (scores ?? []) as ScoreRow[];
   const best = typedScores[0]?.score ?? 0;
 
   function formatDate(iso: string) {
